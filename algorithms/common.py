@@ -196,26 +196,110 @@ html, body, [class*="css"]  {
 [data-testid="stSidebar"] {
     background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
 }
-[data-testid="stSidebar"] * {
+[data-testid="stSidebar"] .stMarkdown,
+[data-testid="stSidebar"] .stMarkdown p,
+[data-testid="stSidebar"] .stMarkdown li,
+[data-testid="stSidebar"] .stMarkdown span:not(.badge):not(.pill) {
     color: #e0e7ff !important;
 }
-[data-testid="stSidebar"] label {
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] label * {
     color: #c7d2fe !important;
     font-weight: 600 !important;
     font-size: .88rem !important;
 }
-[data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3,
+[data-testid="stSidebar"] h4 {
     color: white !important;
     border-bottom: 2px solid rgba(255,255,255,.15);
     padding-bottom: .5rem;
 }
+
+/* ----- Slider trong sidebar ----- */
 [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div {
     background: linear-gradient(90deg, #f093fb, #f5576c) !important;
 }
+/* Giá trị hiển thị bên cạnh thanh trượt */
+[data-testid="stSidebar"] [data-testid="stTickBar"],
+[data-testid="stSidebar"] [data-testid="stTickBarMin"],
+[data-testid="stSidebar"] [data-testid="stTickBarMax"] {
+    color: #a5b4fc !important;
+}
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] [role="slider"] {
+    background: #f093fb !important;
+    box-shadow: 0 0 0 3px rgba(240,147,251,.3) !important;
+}
+
+/* ----- Select box / Multi-select trong sidebar ----- */
 [data-testid="stSidebar"] [data-baseweb="select"] > div {
-    background: rgba(255,255,255,.1) !important;
-    border: 1px solid rgba(255,255,255,.2) !important;
+    background: rgba(255,255,255,.95) !important;
+    border: 1px solid rgba(255,255,255,.3) !important;
     border-radius: 10px !important;
+}
+[data-testid="stSidebar"] [data-baseweb="select"] > div *,
+[data-testid="stSidebar"] [data-baseweb="select"] input {
+    color: #1e1b4b !important;
+}
+[data-testid="stSidebar"] [data-baseweb="select"] svg {
+    fill: #6366f1 !important;
+}
+
+/* ----- Number input / Text input trong sidebar (chuyển nền sang trắng + chữ tím đậm) ----- */
+[data-testid="stSidebar"] [data-testid="stNumberInput"] input,
+[data-testid="stSidebar"] [data-testid="stTextInput"] input,
+[data-testid="stSidebar"] [data-testid="stTextArea"] textarea,
+[data-testid="stSidebar"] input[type="number"],
+[data-testid="stSidebar"] input[type="text"] {
+    background: #ffffff !important;
+    color: #1e1b4b !important;
+    border: 1px solid rgba(99,102,241,.4) !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    caret-color: #6366f1 !important;
+}
+[data-testid="stSidebar"] [data-testid="stNumberInput"] input:focus,
+[data-testid="stSidebar"] [data-testid="stTextInput"] input:focus {
+    border-color: #f093fb !important;
+    box-shadow: 0 0 0 3px rgba(240,147,251,.25) !important;
+}
+/* Nút +/- của number input */
+[data-testid="stSidebar"] [data-testid="stNumberInput"] button {
+    background: rgba(255,255,255,.18) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255,255,255,.25) !important;
+    border-radius: 8px !important;
+}
+[data-testid="stSidebar"] [data-testid="stNumberInput"] button:hover {
+    background: rgba(240,147,251,.45) !important;
+    border-color: #f093fb !important;
+}
+[data-testid="stSidebar"] [data-testid="stNumberInput"] button svg {
+    fill: #ffffff !important;
+}
+
+/* ----- Radio / Checkbox trong sidebar ----- */
+[data-testid="stSidebar"] [data-testid="stRadio"] label,
+[data-testid="stSidebar"] [data-testid="stCheckbox"] label {
+    color: #e0e7ff !important;
+}
+[data-testid="stSidebar"] [data-baseweb="radio"] div[role="radio"] {
+    border-color: rgba(255,255,255,.5) !important;
+}
+
+/* ----- Dropdown menu (khi click vào select) ----- */
+[data-baseweb="popover"] [role="listbox"] {
+    background: #ffffff !important;
+    border: 1px solid rgba(99,102,241,.3) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 12px 32px -8px rgba(99,102,241,.35) !important;
+}
+[data-baseweb="popover"] [role="option"] {
+    color: #1e1b4b !important;
+}
+[data-baseweb="popover"] [role="option"]:hover {
+    background: linear-gradient(90deg, rgba(99,102,241,.12), rgba(240,147,251,.12)) !important;
 }
 
 /* ------- BUTTON ------- */
