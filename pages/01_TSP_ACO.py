@@ -5,7 +5,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from algorithms.common import page_header, back_button, plot_convergence, metric_row
+from algorithms.common import (page_header, back_button, plot_convergence, metric_row,
+                                generate_pdf_report, download_pdf_button)
 from algorithms.tsp_aco import aco_tsp, SAMPLE_DATASETS, random_cities
 
 st.set_page_config(page_title="01 · TSP ACO", page_icon="🗺️", layout="wide")
@@ -83,7 +84,7 @@ if st.button("🚀 Chạy ACO-TSP", type="primary"):
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("🛣️ Chu trình tối ưu")
-        fig, ax = plt.subplots(figsize=(8, 6.5))
+        fig1, ax = plt.subplots(figsize=(8, 6.5))
         order = path + [path[0]]
         ax.plot(coords[order, 0], coords[order, 1], "-", color="#10b981",
                 lw=2, alpha=.85, zorder=2)
@@ -101,10 +102,43 @@ if st.button("🚀 Chạy ACO-TSP", type="primary"):
                      color="#1e1b4b", fontweight="bold")
         ax.grid(True, alpha=.3)
         ax.margins(0.1)
-        st.pyplot(fig)
+        st.pyplot(fig1)
     with col2:
         st.subheader("📉 Hội tụ")
-        st.pyplot(plot_convergence(hist, "Hội tụ TSP-ACO", "Best Distance"))
+        fig2 = plot_convergence(hist, "Hội tụ TSP-ACO", "Best Distance")
+        st.pyplot(fig2)
 
     with st.expander("📋 Chi tiết lời giải"):
         st.code(" → ".join(map(str, path + [path[0]])))
+
+    # ---------- 📄 NÚT TẢI PDF ----------
+    st.markdown("---")
+    st.subheader("📥 Xuất báo cáo PDF")
+    pdf_bytes = generate_pdf_report(
+        problem_title="Bài toán 01 – TSP",
+        problem_subtitle="Traveling Salesman Problem giải bằng Ant Colony Optimization",
+        algorithm="ACO",
+        inputs={
+            "Dataset": dataset_name,
+            "Số thành phố": len(coords),
+            "Số kiến (n_ants)": n_ants,
+            "Số vòng lặp": n_iter,
+            "Alpha (pheromone)": alpha,
+            "Beta (heuristic)": beta,
+            "Rho (bay hơi)": rho,
+            "Random seed": seed,
+        },
+        outputs={
+            "Tổng quãng đường": f"{dist:.2f}",
+            "Thời gian chạy": f"{rt:.2f} giây",
+            "Chu trình tốt nhất": " → ".join(map(str, path[:10])) + (" → ..." if len(path) > 10 else ""),
+        },
+        figures=[
+            ("Hình 0: Bản đồ thành phố (input)", fig0),
+            ("Hình 1: Chu trình tối ưu", fig1),
+            ("Hình 2: Đồ thị hội tụ", fig2),
+        ],
+    )
+    download_pdf_button(pdf_bytes,
+                       file_name=f"BaoCao_TSP_ACO_n{len(coords)}.pdf",
+                       key="pdf_tsp")

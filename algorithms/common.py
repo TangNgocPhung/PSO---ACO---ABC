@@ -876,7 +876,7 @@ def generate_pdf_report(
 
         # --- INPUT box ---
         y_input = 0.83
-        fig.text(0.1, y_input, "📥 ĐẦU VÀO (Input parameters)",
+        fig.text(0.1, y_input, "▼  ĐẦU VÀO (Input parameters)",
                  fontsize=12, fontweight="bold", color="#1e3a8a")
         ax_in = fig.add_axes([0.1, 0.5, 0.8, 0.33])
         ax_in.axis("off")
@@ -890,7 +890,7 @@ def generate_pdf_report(
                              ec="#6366f1", lw=1))
 
         # --- OUTPUT box ---
-        fig.text(0.1, 0.46, "📤 KẾT QUẢ (Output metrics)",
+        fig.text(0.1, 0.46, "▲  KẾT QUẢ (Output metrics)",
                  fontsize=12, fontweight="bold", color="#065f46")
         ax_out = fig.add_axes([0.1, 0.13, 0.8, 0.33])
         ax_out.axis("off")

@@ -5,7 +5,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from algorithms.common import page_header, back_button, plot_convergence, metric_row
+from algorithms.common import (page_header, back_button, plot_convergence, metric_row,
+                                generate_pdf_report, download_pdf_button)
 from algorithms.jssp_aco import aco_jssp, FT06, FT06_OPT, decode_schedule
 
 st.set_page_config(page_title="03 · JSSP ACO", page_icon="⚙️", layout="wide")
@@ -59,7 +60,7 @@ if st.button("🚀 Chạy ACO-JSSP", type="primary"):
     with col1:
         st.subheader("📊 Gantt chart")
         n_machines = max(m for job in FT06 for m, _ in job) + 1
-        fig, ax = plt.subplots(figsize=(10, 5))
+        fig1, ax = plt.subplots(figsize=(10, 5))
         colors = plt.cm.tab10(np.linspace(0, 1, len(FT06)))
         for m, j, op, s, e in sched:
             ax.barh(m, e - s, left=s, color=colors[j], edgecolor="black", alpha=.85)
@@ -70,7 +71,7 @@ if st.button("🚀 Chạy ACO-JSSP", type="primary"):
         ax.set_xlabel("Thời gian")
         ax.set_title(f"Lịch sản xuất – Makespan = {mk}")
         ax.grid(True, axis="x", alpha=.3)
-        st.pyplot(fig)
+        st.pyplot(fig1)
     with col2:
         st.subheader("📉 Hội tụ")
         fig2 = plot_convergence(hist, "Hội tụ JSSP-ACO", "Makespan")
@@ -80,3 +81,35 @@ if st.button("🚀 Chạy ACO-JSSP", type="primary"):
 
     with st.expander("📋 Chuỗi thứ tự công việc"):
         st.code(" → ".join(map(str, seq)))
+
+    # ---------- 📄 NÚT TẢI PDF ----------
+    st.markdown("---")
+    st.subheader("📥 Xuất báo cáo PDF")
+    pdf_bytes = generate_pdf_report(
+        problem_title="Bài toán 03 – JSSP",
+        problem_subtitle="Job Shop Scheduling Problem – benchmark FT06",
+        algorithm="ACO",
+        inputs={
+            "Dataset": "FT06 (6 jobs × 6 machines)",
+            "Optimum đã biết": FT06_OPT,
+            "Số kiến": n_ants,
+            "Số vòng lặp": n_iter,
+            "Alpha": alpha,
+            "Beta": beta,
+            "Rho": rho,
+            "Seed": seed,
+        },
+        outputs={
+            "Makespan": mk,
+            "Gap so với optimum": f"{gap:.2f}%",
+            "Thời gian chạy": f"{rt:.2f} giây",
+            "Chuỗi thứ tự (10 op đầu)": " → ".join(map(str, seq[:10])),
+        },
+        figures=[
+            ("Hình 1: Gantt chart lịch sản xuất", fig1),
+            ("Hình 2: Đồ thị hội tụ", fig2),
+        ],
+    )
+    download_pdf_button(pdf_bytes,
+                       file_name=f"BaoCao_JSSP_ACO_FT06.pdf",
+                       key="pdf_jssp")

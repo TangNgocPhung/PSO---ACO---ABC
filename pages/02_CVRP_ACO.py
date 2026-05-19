@@ -5,7 +5,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from algorithms.common import page_header, back_button, plot_convergence, metric_row
+from algorithms.common import (page_header, back_button, plot_convergence, metric_row,
+                                generate_pdf_report, download_pdf_button)
 from algorithms.vrp_aco import aco_cvrp, make_random_cvrp
 
 st.set_page_config(page_title="02 · VRP ACO", page_icon="🚚", layout="wide")
@@ -78,7 +79,7 @@ if st.button("🚀 Chạy ACO-CVRP", type="primary"):
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("🛣️ Các tuyến đường")
-        fig, ax = plt.subplots(figsize=(8, 6.5))
+        fig1, ax = plt.subplots(figsize=(8, 6.5))
         colors = plt.cm.tab10(np.linspace(0, 1, max(len(routes), 1)))
         # Vẽ các tuyến trước (lwer zorder để chấm đè lên)
         for k, r in enumerate(routes):
@@ -103,12 +104,47 @@ if st.button("🚀 Chạy ACO-CVRP", type="primary"):
         ax.legend(loc="best", fontsize=8)
         ax.grid(True, alpha=.3)
         ax.margins(0.1)
-        st.pyplot(fig)
+        st.pyplot(fig1)
     with col2:
         st.subheader("📉 Hội tụ")
-        st.pyplot(plot_convergence(hist, "Hội tụ ACO-CVRP", "Tổng quãng đường"))
+        fig2 = plot_convergence(hist, "Hội tụ ACO-CVRP", "Tổng quãng đường")
+        st.pyplot(fig2)
 
     with st.expander("📋 Chi tiết tuyến"):
         for k, r in enumerate(routes):
             st.write(f"**Xe {k+1}** (load={sum(demands[c] for c in r)}/{capacity}): "
                      f"0 → {' → '.join(map(str, r))} → 0")
+
+    # ---------- 📄 NÚT TẢI PDF ----------
+    st.markdown("---")
+    st.subheader("📥 Xuất báo cáo PDF")
+    pdf_bytes = generate_pdf_report(
+        problem_title="Bài toán 02 – CVRP",
+        problem_subtitle="Capacitated Vehicle Routing Problem giải bằng ACO",
+        algorithm="ACO",
+        inputs={
+            "Số khách hàng": n_customers,
+            "Capacity / xe": capacity,
+            "Số kiến": n_ants,
+            "Số vòng lặp": n_iter,
+            "Alpha": alpha,
+            "Beta": beta,
+            "Rho": rho,
+            "Seed": seed,
+        },
+        outputs={
+            "Tổng quãng đường": f"{total:.2f}",
+            "Số xe sử dụng": len(routes),
+            "Thời gian chạy": f"{rt:.2f} giây",
+            **{f"Tuyến xe {k+1} (load)": f"{sum(demands[c] for c in r)}/{capacity}"
+               for k, r in enumerate(routes)},
+        },
+        figures=[
+            ("Hình 0: Bản đồ depot + khách hàng (input)", fig0),
+            ("Hình 1: Các tuyến đường tối ưu", fig1),
+            ("Hình 2: Đồ thị hội tụ", fig2),
+        ],
+    )
+    download_pdf_button(pdf_bytes,
+                       file_name=f"BaoCao_CVRP_ACO_n{n_customers}.pdf",
+                       key="pdf_cvrp")
