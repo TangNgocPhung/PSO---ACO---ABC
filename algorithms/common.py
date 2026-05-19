@@ -302,6 +302,87 @@ html, body, [class*="css"]  {
     background: linear-gradient(90deg, rgba(99,102,241,.12), rgba(240,147,251,.12)) !important;
 }
 
+/* ============================================================
+   SIDEBAR NAV (danh sách 11 trang Streamlit tự sinh)
+   Trước: chữ đen trên nền tím đậm → không thấy.
+   Sau:  chữ trắng + hover gradient hồng-tím.
+   ============================================================ */
+[data-testid="stSidebarNav"] {
+    background: rgba(255,255,255,.05) !important;
+    border-radius: 12px !important;
+    padding: 8px 6px !important;
+    margin-bottom: 1rem !important;
+}
+[data-testid="stSidebarNav"] ul {
+    padding-left: 0 !important;
+}
+[data-testid="stSidebarNav"] li {
+    list-style: none !important;
+    margin: 2px 0 !important;
+}
+/* Link trong nav (mọi phiên bản Streamlit) */
+[data-testid="stSidebarNav"] a,
+[data-testid="stSidebarNav"] a span,
+[data-testid="stSidebarNav"] a p,
+[data-testid="stSidebarNavLink"],
+[data-testid="stSidebarNavLink"] span,
+[data-testid="stSidebarNavLink"] p,
+[data-testid="stSidebarNavItems"] a,
+[data-testid="stSidebarNavItems"] a span,
+[data-testid="stSidebarNavItems"] a p {
+    color: #e0e7ff !important;
+    font-weight: 500 !important;
+    font-size: .92rem !important;
+    text-decoration: none !important;
+}
+/* Link container */
+[data-testid="stSidebarNav"] a,
+[data-testid="stSidebarNavLink"],
+[data-testid="stSidebarNavItems"] a {
+    display: block !important;
+    padding: 8px 14px !important;
+    border-radius: 10px !important;
+    transition: all .2s ease !important;
+    background: transparent !important;
+}
+/* Hover */
+[data-testid="stSidebarNav"] a:hover,
+[data-testid="stSidebarNavLink"]:hover,
+[data-testid="stSidebarNavItems"] a:hover {
+    background: linear-gradient(90deg, rgba(240,147,251,.25), rgba(99,102,241,.25)) !important;
+    transform: translateX(3px);
+    box-shadow: inset 3px 0 0 #f093fb;
+}
+[data-testid="stSidebarNav"] a:hover *,
+[data-testid="stSidebarNavLink"]:hover *,
+[data-testid="stSidebarNavItems"] a:hover * {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+/* Trang đang active */
+[data-testid="stSidebarNav"] a[aria-current="page"],
+[data-testid="stSidebarNavLink"][aria-current="page"],
+[data-testid="stSidebarNavItems"] a[aria-current="page"] {
+    background: linear-gradient(90deg, #f093fb, #f5576c) !important;
+    box-shadow: 0 6px 16px -6px rgba(245,87,108,.55) !important;
+}
+[data-testid="stSidebarNav"] a[aria-current="page"] *,
+[data-testid="stSidebarNavLink"][aria-current="page"] *,
+[data-testid="stSidebarNavItems"] a[aria-current="page"] * {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+/* Mũi tên collapse sidebar (<<) */
+[data-testid="stSidebarCollapseButton"] svg,
+[data-testid="stBaseButton-headerNoPadding"] svg {
+    fill: #c7d2fe !important;
+}
+[data-testid="stSidebarCollapseButton"]:hover svg,
+[data-testid="stBaseButton-headerNoPadding"]:hover svg {
+    fill: #ffffff !important;
+}
+
 /* ------- BUTTON ------- */
 .stButton > button {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

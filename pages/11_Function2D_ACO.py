@@ -124,11 +124,11 @@ if st.button("🚀 Chạy ACO", type="primary"):
                   color="#1e1b4b", fontweight="bold")
     st.pyplot(fig3)
 
-    st.info(
-        f"💡 **Vì sao hình hay đen?** ACO hội tụ mạnh → ô tốt nhất tích luỹ "
-        f"pheromone rất cao (max ≈ **{pher.max():.1f}**), trong khi các ô "
-        f"khác chỉ còn rất nhỏ (median ≈ **{np.median(pher):.3f}**). "
-        f"Dùng thang **Log** hoặc **Power** để thấy rõ exploration trail. "
-        f"Nếu vẫn muốn thấy rõ vùng exploration, tăng **Rho** (bay hơi) lên ~0.3 "
-        f"hoặc giảm số vòng lặp."
-    )
+    # st.info(
+    #     f"💡 **Vì sao hình hay đen?** ACO hội tụ mạnh → ô tốt nhất tích luỹ "
+    #     f"pheromone rất cao (max ≈ **{pher.max():.1f}**), trong khi các ô "
+    #     f"khác chỉ còn rất nhỏ (median ≈ **{np.median(pher):.3f}**). "
+    #     f"Dùng thang **Log** hoặc **Power** để thấy rõ exploration trail. "
+    #     f"Nếu vẫn muốn thấy rõ vùng exploration, tăng **Rho** (bay hơi) lên ~0.3 "
+    #     f"hoặc giảm số vòng lặp."
+    # )
