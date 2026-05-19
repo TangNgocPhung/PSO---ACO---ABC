@@ -287,6 +287,12 @@ if st.button(f"🚀 Chạy PSO-Protein ({mode})", type="primary"):
         dir_label = (["+x", "+y", "-x", "-y"] if mode == "2D"
                      else ["+x", "-x", "+y", "-y", "+z", "-z"])
         st.code(" → ".join(dir_label[int(d)] for d in gbest), language=None)
+        st.markdown("**Toạ độ các residue:**")
+        coord_str = "\n".join(
+            f"  {i:3d}. {seq[i]} → {tuple(coords[i])}"
+            for i in range(len(seq))
+        )
+        st.code(coord_str, language=None)
 
     # ---------- 📄 NÚT TẢI PDF ----------
     st.markdown("---")
@@ -323,9 +329,3 @@ if st.button(f"🚀 Chạy PSO-Protein ({mode})", type="primary"):
     download_pdf_button(pdf_bytes,
                        file_name=f"BaoCao_Protein_{mode}_{seq_name}.pdf",
                        key="pdf_protein")
-        st.markdown(f"**Toạ độ các residue:**")
-        coord_str = "\n".join(
-            f"  {i:3d}. {seq[i]} → {tuple(coords[i])}"
-            for i in range(len(seq))
-        )
-        st.code(coord_str, language=None)
