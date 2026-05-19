@@ -454,26 +454,48 @@ html, body, [class*="css"]  {
 }
 /* Body alerts giữ màu mặc định Streamlit (info xanh, success xanh lá, ...) */
 
-/* ------- ALERT TRONG SIDEBAR – luôn nền TRẮNG + chữ TÍM ĐẬM ------- */
-[data-testid="stSidebar"] [data-testid="stAlert"] {
-    background: rgba(255,255,255,.95) !important;
+/* ------- ALERT TRONG SIDEBAR – ép TẤT CẢ layer divs về nền TRẮNG + chữ TÍM ĐẬM -------
+   Streamlit dùng nhiều layer div lồng nhau cho alert, mỗi layer có background riêng.
+   Phải phủ TẤT CẢ selector có thể có để bulletproof.                                  */
+[data-testid="stSidebar"] [data-testid="stAlert"],
+[data-testid="stSidebar"] [data-testid="stAlert"] > div,
+[data-testid="stSidebar"] [data-testid="stAlert"] > div > div,
+[data-testid="stSidebar"] [data-testid="stAlertContainer"],
+[data-testid="stSidebar"] [data-testid="stNotification"],
+[data-testid="stSidebar"] [data-testid="stNotificationContent"],
+[data-testid="stSidebar"] [data-testid="stAlertContentInfo"],
+[data-testid="stSidebar"] [data-testid="stAlertContentSuccess"],
+[data-testid="stSidebar"] [data-testid="stAlertContentWarning"],
+[data-testid="stSidebar"] [data-testid="stAlertContentError"],
+[data-testid="stSidebar"] [data-testid*="Alert"],
+[data-testid="stSidebar"] [data-testid*="alert"],
+[data-testid="stSidebar"] div[class*="stAlert"],
+[data-testid="stSidebar"] div[class*="alert"] {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
     border: 1px solid rgba(99,102,241,.35) !important;
     border-radius: 14px !important;
-    box-shadow: 0 6px 18px -8px rgba(0,0,0,.4) !important;
+    box-shadow: 0 6px 18px -8px rgba(0,0,0,.5) !important;
     color: #1e1b4b !important;
 }
+/* Mọi text con bên trong alert: tím đậm */
 [data-testid="stSidebar"] [data-testid="stAlert"] *,
-[data-testid="stSidebar"] [data-testid="stAlert"] p,
-[data-testid="stSidebar"] [data-testid="stAlert"] span,
-[data-testid="stSidebar"] [data-testid="stAlert"] div {
+[data-testid="stSidebar"] [data-testid*="Alert"] *,
+[data-testid="stSidebar"] [data-testid*="Notification"] * {
     color: #1e1b4b !important;
+    background-color: transparent !important;
 }
+/* Bold trong alert: tím sâu hơn */
 [data-testid="stSidebar"] [data-testid="stAlert"] strong,
-[data-testid="stSidebar"] [data-testid="stAlert"] b {
+[data-testid="stSidebar"] [data-testid="stAlert"] b,
+[data-testid="stSidebar"] [data-testid*="Alert"] strong,
+[data-testid="stSidebar"] [data-testid*="Alert"] b {
     color: #4c1d95 !important;
     font-weight: 700 !important;
 }
-[data-testid="stSidebar"] [data-testid="stAlert"] svg {
+/* Icon SVG */
+[data-testid="stSidebar"] [data-testid="stAlert"] svg,
+[data-testid="stSidebar"] [data-testid*="Alert"] svg {
     fill: #6366f1 !important;
 }
 

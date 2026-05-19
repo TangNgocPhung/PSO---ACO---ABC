@@ -246,8 +246,30 @@ st.sidebar.markdown(
     """
 )
 st.sidebar.markdown("---")
-st.sidebar.info("💡 **Mẹo:** Click vào một bài toán, sau đó điều chỉnh tham số ở "
-                "sidebar và nhấn **🚀 Chạy**.")
+# Dùng custom div thay st.info để đảm bảo nền TRẮNG + chữ TỐI (luôn dễ đọc trên sidebar tím)
+st.sidebar.markdown(
+    """
+    <div style="
+        background: #ffffff;
+        color: #1e1b4b;
+        padding: 0.9rem 1rem;
+        border-radius: 14px;
+        margin-top: 0.8rem;
+        box-shadow: 0 6px 18px -8px rgba(0,0,0,0.5);
+        font-size: 0.9rem;
+        line-height: 1.5;
+        border-left: 4px solid #f093fb;
+    ">
+        <span style="font-size:1.1rem;">💡</span>
+        <b style="color:#4c1d95;"> Mẹo:</b>
+        <span style="color:#1e1b4b;">
+            Click vào một bài toán, sau đó điều chỉnh tham số ở sidebar và nhấn
+            <b style="color:#4c1d95;">🚀 Chạy</b>.
+        </span>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 # ---------------------------------------------------------------------------
 #  FOOTER
