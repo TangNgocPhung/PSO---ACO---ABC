@@ -15,7 +15,7 @@ GVHD **PGS.TS Lê Hoàng Thái**, Khoá 36 (2025–2027).
 | 04 | QAP – Quadratic Assignment | ACO | `pages/04_QAP_ACO.py` |
 | 05 | GCP – Graph Coloring | ACO | `pages/05_GCP_ACO.py` |
 | 06 | VRPTW – VRP with Time Windows | PSO | `pages/06_VRPTW_PSO.py` |
-| 07 | Protein Folding (HP 2D) | PSO | `pages/07_Protein_PSO.py` |
+| 07 | Protein Folding (HP 2D **& 3D**) | PSO | `pages/07_Protein_PSO.py` |
 | 08 | PID Controller Tuning | PSO | `pages/08_PID_PSO.py` |
 | 09 | Portfolio Optimization (Markowitz) | ACO | `pages/09_Portfolio_ACO.py` |
 | 10 | Feature Selection (Breast Cancer) | Binary PSO | `pages/10_FeatureSelection_BPSO.py` |
@@ -92,12 +92,12 @@ trong thư mục `../CSTT_ThayThai/` (do nhóm thực hiện):
 
 ## 👨‍🎓 Nhóm tác giả
 
-- Chử Chí Công – KHMT836005
+- Chế Chí Công – KHMT836005
 - Lê Thị Mai Len – KHMT836015
 - Huỳnh Phát Lợi – KHMT836016
-- Trần Vũ Khải Nguyên – KHMT836022
+- Trần Võ Khôi Nguyên – KHMT836022
 - Tăng Ngọc Phụng – KHMT836027
 - Hoàng Châu Ngọc Phương – KHMT836028
-- Vũ Phú Vinh – KHMT836036
+- Võ Phú Vinh – KHMT836036
 
 📍 TP. Hồ Chí Minh – 20/05/2026

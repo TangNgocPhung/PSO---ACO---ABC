@@ -255,8 +255,8 @@ st.markdown(
     """
     <div class="footer-box">
         <p class="authors">👨‍🎓 Nhóm tác giả</p>
-        <p>Chử Chí Công · Lê Thị Mai Len · Huỳnh Phát Lợi · Trần Vũ Khải Nguyên ·
-        Tăng Ngọc Phụng · Hoàng Châu Ngọc Phương · Vũ Phú Vinh</p>
+        <p>Chế Chí Công · Lê Thị Mai Len · Huỳnh Phát Lợi · Trần Võ Khải Nguyên ·
+        Tăng Ngọc Phụng · Hoàng Châu Ngọc Phương · Võ Phú Vinh</p>
         <p style="font-size:.8rem;color:#94a3b8;margin-top:.6rem !important;">
             📍 TP. Hồ Chí Minh – 20/05/2026 ·
             🎓 Trường Đại học Sư phạm TP.HCM ·
