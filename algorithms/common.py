@@ -202,6 +202,27 @@ html, body, [class*="css"]  {
 [data-testid="stSidebar"] .stMarkdown span:not(.badge):not(.pill) {
     color: #e0e7ff !important;
 }
+/* Chữ in đậm / nghiêng trong sidebar - tô vàng nhạt để nổi bật trên nền tối */
+[data-testid="stSidebar"] .stMarkdown strong,
+[data-testid="stSidebar"] .stMarkdown b {
+    color: #fde68a !important;
+    font-weight: 700 !important;
+}
+[data-testid="stSidebar"] .stMarkdown em,
+[data-testid="stSidebar"] .stMarkdown i {
+    color: #fbcfe8 !important;
+}
+/* Link trong sidebar (đoạn markdown) */
+[data-testid="stSidebar"] .stMarkdown a {
+    color: #93c5fd !important;
+    text-decoration: underline;
+}
+/* Inline code trong sidebar */
+[data-testid="stSidebar"] .stMarkdown code {
+    background: rgba(255,255,255,.15) !important;
+    color: #fde68a !important;
+    border: 1px solid rgba(253,230,138,.3) !important;
+}
 [data-testid="stSidebar"] label,
 [data-testid="stSidebar"] label * {
     color: #c7d2fe !important;
@@ -424,12 +445,36 @@ html, body, [class*="css"]  {
     padding: .5rem 0;
 }
 
-/* ------- ALERT (success / info / warn) ------- */
-[data-testid="stAlert"] {
+/* ------- ALERT (success / info / warn / error) – BODY chính ------- */
+.stApp [data-testid="stAlert"] {
     border-radius: 14px;
-    border: 1px solid rgba(99,102,241,.15);
+    border: 1px solid rgba(99,102,241,.2);
     box-shadow: 0 4px 14px -6px rgba(99,102,241,.18);
     backdrop-filter: blur(6px);
+}
+/* Body alerts giữ màu mặc định Streamlit (info xanh, success xanh lá, ...) */
+
+/* ------- ALERT TRONG SIDEBAR – luôn nền TRẮNG + chữ TÍM ĐẬM ------- */
+[data-testid="stSidebar"] [data-testid="stAlert"] {
+    background: rgba(255,255,255,.95) !important;
+    border: 1px solid rgba(99,102,241,.35) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 6px 18px -8px rgba(0,0,0,.4) !important;
+    color: #1e1b4b !important;
+}
+[data-testid="stSidebar"] [data-testid="stAlert"] *,
+[data-testid="stSidebar"] [data-testid="stAlert"] p,
+[data-testid="stSidebar"] [data-testid="stAlert"] span,
+[data-testid="stSidebar"] [data-testid="stAlert"] div {
+    color: #1e1b4b !important;
+}
+[data-testid="stSidebar"] [data-testid="stAlert"] strong,
+[data-testid="stSidebar"] [data-testid="stAlert"] b {
+    color: #4c1d95 !important;
+    font-weight: 700 !important;
+}
+[data-testid="stSidebar"] [data-testid="stAlert"] svg {
+    fill: #6366f1 !important;
 }
 
 /* ------- PROGRESS BAR ------- */
@@ -454,15 +499,30 @@ html, body, [class*="css"]  {
     margin-top: 1.2rem !important;
 }
 
-/* ------- DATAFRAME ------- */
-[data-testid="stDataFrame"] {
+/* ------- DATAFRAME (body chính – nền sáng chữ tối) ------- */
+.stApp [data-testid="stDataFrame"] {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 14px -6px rgba(99,102,241,.18);
 }
+.stApp [data-testid="stDataFrame"] * {
+    color: #1e1b4b !important;
+}
+/* Body markdown - đảm bảo bold trong main area là tím đậm */
+.stApp .main .stMarkdown strong,
+.stApp .main .stMarkdown b {
+    color: #4338ca !important;
+    font-weight: 700 !important;
+}
 
-/* ------- CODE BLOCK ------- */
-code {
+/* ------- RADIO / CHECKBOX trong body chính (không sidebar) ------- */
+.stApp .main [data-testid="stRadio"] label,
+.stApp .main [data-testid="stCheckbox"] label {
+    color: #1e1b4b !important;
+}
+
+/* ------- CODE BLOCK (body chính) ------- */
+.stApp code {
     background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
     color: #92400e !important;
     padding: 2px 6px !important;
@@ -470,15 +530,27 @@ code {
     font-family: 'JetBrains Mono', monospace !important;
     font-size: .85rem !important;
 }
-pre {
+.stApp pre {
     background: #1e1b4b !important;
     border-radius: 12px !important;
     padding: 1rem !important;
     box-shadow: 0 8px 20px -8px rgba(30,27,75,.4);
 }
-pre code {
+.stApp pre code,
+.stApp pre code * {
     background: transparent !important;
     color: #c7d2fe !important;
+}
+/* st.code block (st.code()) - dark with light text */
+.stApp [data-testid="stCodeBlock"] {
+    background: #1e1b4b !important;
+    border-radius: 12px !important;
+}
+.stApp [data-testid="stCodeBlock"] code,
+.stApp [data-testid="stCodeBlock"] pre,
+.stApp [data-testid="stCodeBlock"] span {
+    color: #e0e7ff !important;
+    background: transparent !important;
 }
 
 /* ------- DIVIDER ------- */

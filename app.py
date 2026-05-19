@@ -239,8 +239,8 @@ st.sidebar.markdown("---")
 st.sidebar.markdown(
     """
     ### 📖 Về dự án
-    Giao diện minh hoạ **11 bài toán tối ưu** thuộc Chương 4 báo cáo:
-    - Tối ưu **tổ hợp** (TSP, VRP, JSSP, QAP, GCP, VRPTW)
+    Giao diện minh hoạ **12 bài toán tối ưu** thuộc Chương 4 báo cáo:
+    - Tối ưu **tổ hợp** (TSP, VRP, JSSP, QAP, GCP, VRPTW × 2)
     - Tối ưu **liên tục** (PID, Function 2D)
     - Tối ưu **ứng dụng** (Portfolio, Protein, Feature Selection)
     """
