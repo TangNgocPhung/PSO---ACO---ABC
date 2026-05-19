@@ -71,6 +71,47 @@ if st.button("🚀 Chạy ACO-GCP", type="primary"):
         ("⏱️ Thời gian", f"{rt:.2f}s", None),
     ])
 
+    with st.expander("📖 Giải thích kết quả", expanded=False):
+        st.markdown(f"""
+        ### 🎯 Các chỉ số đầu ra
+
+        - **🎨 Số màu dùng = `{n_used}`**
+          Số màu phân biệt được dùng để tô tất cả {G.number_of_nodes()} đỉnh.
+          Càng nhỏ càng tốt. **Chromatic number** $\\chi(G)$ là số màu tối thiểu cần thiết.
+
+        - **⚠️ Số xung đột = `{conflicts}`**
+          Số cạnh $(u,v) \\in E$ có **2 đỉnh cùng màu** — vi phạm ràng buộc.
+          {"**Lời giải HỢP LỆ** — không vi phạm cạnh nào!" if conflicts == 0
+           else f"**Lời giải VI PHẠM** — cần tăng max_colors hoặc số vòng lặp."}
+
+        - **🎯 Fitness = `{fit:.0f}`**
+          $$f = penalty \\cdot conflicts + n_{{used}}$$
+          (penalty = 100). Khi conflicts = 0, fitness chính là số màu dùng.
+
+        - **⏱️ Thời gian = `{rt:.2f}s`**
+
+        ### 🖼️ Các hình minh hoạ
+
+        - **🎨 Đồ thị đã tô màu** — Các đỉnh có cùng màu = cùng nhóm.
+          Quan sát: 2 đỉnh kề nhau (có cạnh nối) **phải khác màu**.
+          Nếu thấy 2 đỉnh kề cùng màu → đó là **conflict**.
+
+        - **📉 Đồ thị hội tụ** — Fitness theo vòng lặp.
+
+        ### 💡 Đánh giá
+
+        - **Đồ thị input**: |V| = {G.number_of_nodes()} đỉnh, |E| = {G.number_of_edges()} cạnh
+        - **Mật độ cạnh**: {G.number_of_edges()/(G.number_of_nodes()*(G.number_of_nodes()-1)/2)*100:.1f}%
+        - **Bậc trung bình**: {2*G.number_of_edges()/G.number_of_nodes():.1f}
+          → cần ít nhất {2*G.number_of_edges()//G.number_of_nodes() + 1} màu trên lý thuyết
+
+        ### 📚 Ứng dụng thực tế
+
+        - **Phân bổ tần số** trong mạng di động (tránh nhiễu)
+        - **Lập lịch thi cử** (môn cùng SV không xếp cùng giờ)
+        - **Phân bổ thanh ghi** trong compiler
+        """)
+
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("🎨 Đồ thị đã tô màu")

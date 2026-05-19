@@ -60,6 +60,62 @@ if st.button("🚀 Chạy Binary PSO", type="primary"):
         ("⏱️ Runtime", f"{res['runtime']:.2f}s", None),
     ])
 
+    with st.expander("📖 Giải thích kết quả", expanded=False):
+        delta = (res['selected_acc'] - res['baseline_acc']) * 100
+        st.markdown(f"""
+        ### 🎯 Các chỉ số đầu ra
+
+        - **🎯 Accuracy gốc = `{res['baseline_acc']*100:.2f}%`**
+          Độ chính xác của LogisticRegression khi dùng **toàn bộ {res['n_features_total']}
+          đặc trưng** (mean radius, mean texture, ..., worst fractal dimension).
+
+        - **🚀 Accuracy với features chọn = `{res['selected_acc']*100:.2f}%`**
+          Độ chính xác **sau khi chọn lọc** chỉ giữ {res['n_features_selected']} đặc trưng "quan trọng".
+          Δ = **{delta:+.2f}%** so với baseline.
+
+        - **📉 Giảm features = `{(1-res['n_features_selected']/res['n_features_total'])*100:.0f}%`**
+          Giảm số features từ {res['n_features_total']} → {res['n_features_selected']}
+          → **mô hình nhẹ hơn, training nhanh hơn, ít overfitting hơn**.
+
+        - **⏱️ Runtime = `{res['runtime']:.2f}s`** — Bao gồm fit/eval LogisticRegression
+          tại mỗi particle × mỗi vòng lặp.
+
+        ### 🖼️ Các hình minh hoạ
+
+        - **✅ Đặc trưng được chọn** — Liệt kê {res['n_features_selected']} features mà Binary PSO
+          đánh giá là quan trọng nhất.
+
+        - **📉 Hội tụ BPSO** — Fitness theo vòng lặp:
+          $$fitness = \\alpha \\cdot err + (1-\\alpha) \\cdot \\frac{{|S|}}{{d}}$$
+          với $\\alpha={alpha}$. Càng nhỏ càng tốt (vừa muốn err thấp, vừa muốn |S| nhỏ).
+
+        - **📊 So sánh trước & sau** (2 bar chart):
+          - Trái: Accuracy gốc vs sau chọn lọc
+          - Phải: Số features gốc vs sau chọn lọc
+
+        ### 💡 Phân tích
+
+        {"🏆 **Feature selection THÀNH CÔNG!** Giảm "
+         f"{(1-res['n_features_selected']/res['n_features_total'])*100:.0f}% features "
+         f"mà accuracy {'tăng' if delta > 0 else 'giảm chỉ'} {abs(delta):.2f}%."
+         if abs(delta) < 3 and res['n_features_selected'] < res['n_features_total']
+         else "📊 Kết quả cần xem xét — accuracy có thay đổi đáng kể, cần kiểm tra trade-off."}
+
+        ### 🔬 Binary PSO khác PSO chuẩn ra sao?
+
+        | | PSO chuẩn | **Binary PSO** |
+        |---|---|---|
+        | Vị trí | Số thực $x \\in \\mathbb{{R}}^d$ | Vector nhị phân $x \\in \\{{0,1\\}}^d$ |
+        | Cập nhật vị trí | $x = x + v$ | $x_i = 1$ nếu $rand() < sigmoid(v_i)$ |
+        | Ứng dụng | Tối ưu liên tục | Feature selection, subset selection |
+
+        ### 📚 Dataset Breast Cancer
+
+        - **569 mẫu**, **30 đặc trưng** thuộc các nhóm: mean / standard error / worst
+          (radius, texture, perimeter, area, smoothness, ...).
+        - **Phân loại nhị phân**: ác tính (malignant) vs lành tính (benign).
+        """)
+
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("✅ Đặc trưng được chọn")

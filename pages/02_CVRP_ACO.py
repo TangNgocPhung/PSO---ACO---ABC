@@ -76,6 +76,43 @@ if st.button("🚀 Chạy ACO-CVRP", type="primary"):
         ("👥 Khách hàng", f"{n_customers}", None),
     ])
 
+    with st.expander("📖 Giải thích kết quả", expanded=False):
+        st.markdown(f"""
+        ### 🎯 Các chỉ số đầu ra
+
+        - **📏 Tổng quãng đường = `{total:.2f}`**
+          Tổng chiều dài Euclid của tất cả `{len(routes)}` tuyến (đi + về depot).
+          Càng nhỏ càng tốt — đây là mục tiêu chính cần tối thiểu hoá.
+
+        - **🚚 Số xe = `{len(routes)}`**
+          Số xe được sử dụng để giao hàng. Mỗi xe có **sức chứa = {capacity}** đơn vị.
+          ACO tự quyết định số xe tối thiểu (đóng tuyến khi xe đã đầy → mở tuyến mới).
+
+        - **⏱️ Thời gian** — Thời gian chạy `{n_iter}` vòng × `{n_ants}` kiến.
+
+        - **👥 Khách hàng** — Số điểm cần phục vụ (không tính depot).
+
+        ### 🖼️ Các hình minh hoạ
+
+        - **🛣️ Các tuyến đường** — Mỗi xe có màu riêng (xanh dương, nâu, cyan…),
+          xuất phát từ **depot (vuông đỏ)** đi qua các khách hàng rồi về depot.
+          Trong legend: `Xe k (load=X/Y)` với X = tổng demand đã phục vụ, Y = capacity.
+
+        - **📉 Đồ thị hội tụ** — Best total distance theo vòng lặp.
+          Đường giảm → ACO ngày càng tìm được lời giải tốt hơn.
+
+        ### 💡 Kiểm tra ràng buộc
+
+        - ✅ **Capacity**: Không xe nào vượt {capacity} đơn vị (mỗi tuyến `load ≤ {capacity}`)
+        - ✅ **Coverage**: {n_customers} khách hàng phục vụ đầy đủ
+        - ✅ **Closed tour**: Mỗi xe quay lại depot
+
+        ### 📊 Các tuyến cụ thể
+
+        {chr(10).join(f"- **Xe {k+1}**: load = {sum(demands[c] for c in r)}/{capacity}, qua {len(r)} khách"
+                       for k, r in enumerate(routes))}
+        """)
+
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("🛣️ Các tuyến đường")

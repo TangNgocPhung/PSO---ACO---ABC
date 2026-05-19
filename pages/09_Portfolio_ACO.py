@@ -65,6 +65,60 @@ if st.button("🚀 Chạy ACO-Portfolio", type="primary"):
         ("⏱️ Runtime", f"{rt:.2f}s", None),
     ])
 
+    with st.expander("📖 Giải thích kết quả", expanded=False):
+        st.markdown(f"""
+        ### 🎯 Các chỉ số đầu ra
+
+        - **📈 Expected Return = `{r*100:.2f}%`**
+          $R_p = \\sum_i w_i \\cdot R_i$ — Lợi nhuận kỳ vọng hàng năm của danh mục,
+          tính theo bình quân gia quyền các lợi nhuận từng cổ phiếu.
+
+        - **📉 Risk (σ) = `{risk*100:.2f}%`**
+          $\\sigma_p = \\sqrt{{w^T \\Sigma w}}$ — Độ lệch chuẩn danh mục,
+          đo lường mức biến động giá. Càng nhỏ → danh mục càng ổn định.
+
+        - **⚡ Sharpe Ratio = `{sr:.4f}`** *(càng lớn càng tốt)*
+          $$Sharpe = \\frac{{R_p - R_f}}{{\\sigma_p}}$$
+          với $R_f = {RF*100:.0f}\\%$ (lãi suất phi rủi ro).
+          - **Sharpe > 1**: tốt
+          - **Sharpe > 2**: rất tốt
+          - **Sharpe > 3**: xuất sắc
+
+        - **⏱️ Runtime = `{rt:.2f}s`**
+
+        ### 🖼️ Các hình minh hoạ
+
+        - **💼 Phân bổ danh mục** (bar chart):
+          Trọng số $w_i$ của mỗi cổ phiếu trong danh mục.
+          Sắp xếp giảm dần. Tổng các $w_i = 100\\%$.
+
+        - **📉 Hội tụ Sharpe** — Sharpe Ratio tăng dần theo vòng lặp ACO.
+
+        - **🔥 Ma trận tương quan** (heatmap) — Tương quan giữa từng cặp cổ phiếu.
+          - **Đỏ (gần 1)**: tương quan dương mạnh (di chuyển cùng chiều)
+          - **Xanh (gần 0)**: ít tương quan (đa dạng hoá tốt)
+
+        ### 💡 Diễn giải đầu tư
+
+        Theo lý thuyết **Markowitz (1952)**:
+        - Tăng trọng số cổ phiếu có **Sharpe cao cá nhân** → tăng return chung
+        - Kết hợp các cổ phiếu **ít tương quan** → giảm rủi ro tổng thể (diversification)
+
+        ACO khám phá nhiều combinations weights → tìm portfolio **maximize Sharpe**.
+
+        ### 📊 Top 3 cổ phiếu trong danh mục
+
+        {chr(10).join(f"{i+1}. **{STOCK_NAMES[ix]}** ({SECTORS[ix]}) — weight = **{w[ix]*100:.2f}%**, "
+                       f"expected return = {EXPECTED_RETURNS[ix]*100:.1f}%, σ = {STD_DEVS[ix]*100:.1f}%"
+                       for i, ix in enumerate(idx[:3]))}
+
+        ### ⚠️ Lưu ý
+
+        - Đây là **Markowitz mean-variance** thuần — giả định Returns phân bố chuẩn.
+        - Không tính các yếu tố như: thuế, phí giao dịch, ràng buộc thị trường.
+        - Quá khứ không đảm bảo cho tương lai — dùng tham khảo, không thay tư vấn tài chính.
+        """)
+
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("💼 Phân bổ danh mục")

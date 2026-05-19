@@ -81,6 +81,40 @@ if st.button("🚀 Chạy ACO-TSP", type="primary"):
         ("🔁 Vòng lặp", f"{n_iter}", None),
     ])
 
+    with st.expander("📖 Giải thích kết quả", expanded=False):
+        st.markdown(f"""
+        ### 🎯 Các chỉ số đầu ra
+
+        - **📏 Tổng quãng đường = `{dist:.2f}`**
+          Đây là **tổng độ dài Euclid** của chu trình tối ưu mà đàn kiến tìm được —
+          đi qua **tất cả {len(coords)} thành phố đúng 1 lần** rồi quay về điểm xuất phát.
+          Càng nhỏ càng tốt (vì TSP là bài toán tối thiểu hoá).
+
+        - **⏱️ Thời gian = `{rt:.2f} giây`** — Tổng thời gian CPU để chạy `{n_iter}` vòng lặp
+          × `{n_ants}` con kiến. Phụ thuộc vào kích thước bài toán.
+
+        - **🐜 Số kiến / 🔁 Vòng lặp** — Tham số đầu vào của ACO. Nhiều kiến/vòng lặp thường
+          cho lời giải tốt hơn nhưng tốn thời gian hơn.
+
+        ### 🖼️ Các hình minh hoạ
+
+        - **🛣️ Chu trình tối ưu** — đường nét xanh lá kết nối các thành phố theo thứ tự
+          mà con kiến tốt nhất đi. Các nhãn số trong khung trắng = chỉ số thành phố
+          (đã ẩn nếu > 30 để tránh rối).
+
+        - **📉 Đồ thị hội tụ** — đường cong **best distance theo từng vòng lặp**.
+          Đường giảm nhanh ở các vòng đầu, sau đó **plateau** (đi ngang)
+          → dấu hiệu thuật toán đã hội tụ. Nếu còn dao động nhiều → tăng `n_iter`
+          hoặc giảm `rho` để pheromone không bay hơi quá nhanh.
+
+        ### 💡 Diễn giải hành vi thuật toán
+
+        Ở vòng 1, kiến đi gần như ngẫu nhiên (pheromone đồng đều) →
+        khoảng đường ~`{hist[0]:.0f}`. Theo thời gian, các cạnh tốt được kiến đi nhiều
+        → pheromone trên đó tăng → kiến sau theo dấu pheromone → hội tụ về lời giải
+        cuối ~`{hist[-1]:.0f}` (giảm **{(hist[0]-hist[-1])/hist[0]*100:.1f}%**).
+        """)
+
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("🛣️ Chu trình tối ưu")

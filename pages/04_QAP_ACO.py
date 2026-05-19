@@ -75,6 +75,46 @@ if st.button("🚀 Chạy ACO-QAP", type="primary"):
         ("🔁 Vòng lặp", f"{n_iter}", None),
     ])
 
+    with st.expander("📖 Giải thích kết quả", expanded=False):
+        st.markdown(f"""
+        ### 🎯 Các chỉ số đầu ra
+
+        - **💰 Tổng chi phí = `{cost:.0f}`**
+          $$cost = \\sum_{{i,j}} f_{{ij}} \\cdot d_{{\\pi(i),\\pi(j)}}$$
+          với $f$ = flow giữa các phòng ban (lần/tuần), $d$ = khoảng cách giữa các vị trí (m),
+          $\\pi(i)$ = vị trí được gán cho phòng ban $i$.
+
+          Càng nhỏ càng tốt — nghĩa là **các phòng ban giao tiếp nhiều được đặt gần nhau**,
+          tiết kiệm thời gian di chuyển.
+
+        - **⏱️ Thời gian = `{rt:.2f}s`** — Tổng thời gian chạy ACO.
+
+        ### 🖼️ Các hình minh hoạ
+
+        - **🏢 Sơ đồ toà nhà 4 tầng × 2 phòng**
+          Mỗi ô = 1 phòng, ghi nhãn = phòng ban được phân vào đó.
+          Màu sắc = mã phòng ban (ví dụ TGĐ = xanh dương, TC = cam…).
+          **Vị trí gần nhau (cùng tầng / tầng kế nhau)** thường dành cho phòng ban
+          giao tiếp nhiều với nhau.
+
+        - **📉 Đồ thị hội tụ** — Cost theo vòng lặp.
+          Đường giảm dần → ACO ngày càng phân bố hợp lý.
+
+        ### 📋 Phân công chi tiết
+
+        Sau khi tối ưu, các phòng ban được gán vào vị trí:
+
+        {chr(10).join(f"- **{DEPARTMENT_NAMES[d]}** → vị trí số {l+1} ({LOCATION_NAMES[l]})"
+                       for d, l in enumerate(assign))}
+
+        ### 💡 Đánh giá
+
+        - Cost ban đầu `{hist[0]:.0f}` → cost cuối `{cost:.0f}`
+          → **giảm {(hist[0]-cost)/hist[0]*100:.1f}%**.
+        - QAP là bài toán **NP-Hard mạnh** (số hoán vị = 8! = 40,320).
+          Brute-force chỉ khả thi với n ≤ 10. ACO scale tốt với n lớn.
+        """)
+
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("🏢 Sơ đồ toà nhà")

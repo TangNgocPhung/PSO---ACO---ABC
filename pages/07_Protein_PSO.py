@@ -107,6 +107,55 @@ if st.button(f"🚀 Chạy PSO-Protein ({mode})", type="primary"):
         ("⏱️ Runtime", f"{rt:.2f}s", f"{len(hist_f)} vòng đã chạy"),
     ])
 
+    with st.expander("📖 Giải thích kết quả", expanded=False):
+        st.markdown(f"""
+        ### 🎯 Các chỉ số đầu ra
+
+        - **🔗 H-H contacts = `{contacts}`** *(càng lớn càng tốt)*
+          **Số cặp residue H–H** không kề trên chuỗi nhưng **kề trên lưới**
+          (khoảng cách Manhattan = 1). Đây chính là **năng lượng âm** trong HP Model —
+          càng nhiều tiếp xúc H-H, protein càng ổn định về mặt năng lượng.
+
+        - **🎯 Optimum đã biết = `{opt_contacts}`** (từ benchmark Lau-Dill cho {mode}).
+
+        - **📊 Chất lượng = `{quality:.1f}%`**
+          $\\frac{{contacts}}{{optimum}} \\times 100\\%$.
+          - ≥ 100% → đạt/vượt optimum
+          - 80-100% → rất tốt
+          - < 80% → cần tăng vòng lặp / số particles
+
+        - **⚠️ Penalty = `{pen}`** *(càng nhỏ càng tốt, lý tưởng = 0)*
+          Số cặp residue chồng chéo trên lưới (Self-Avoiding Walk vi phạm).
+          {"✅ Cấu trúc HỢP LỆ — không chồng chéo." if pen == 0
+           else "⚠️ Cấu trúc còn chồng chéo — tăng penalty_weight hoặc vòng lặp."}
+
+        - **⏱️ Runtime = `{rt:.2f}s` (`{len(hist_f)}` vòng đã chạy)** — Có thể dừng sớm
+          nhờ early_stop nếu không cải thiện.
+
+        ### 🖼️ Các hình minh hoạ
+
+        - **🧬 Cấu trúc gấp cuộn {mode}**
+          - 🔴 **Đỏ** = H (hydrophobic / kỵ nước)
+          - 🔵 **Xanh** = P (polar / phân cực)
+          - **Đường xám** = backbone (chuỗi liên kết peptide)
+          - **Đường xanh lá đứt** = H-H contact (cặp đang đếm)
+          - {mode == "3D" and "Hiển thị 3D xoay được, có 3 góc nhìn trong expander" or "Hiển thị phẳng 2D"}
+
+        - **📈 Hội tụ năng lượng** — Số H-H contacts theo vòng lặp.
+          Đường đỏ gạch = optimum. Đường xanh càng gần đường đỏ càng tốt.
+
+        ### 💡 So sánh 2D vs 3D
+
+        | | 2D ({mode}) | 3D |
+        |---|---|---|
+        | Số hướng | 4 (±x, ±y) | 6 (±x, ±y, ±z) |
+        | Optimum HP-{seq_name.split('-')[-1]} | {DATASETS_2D.get(seq_name, ('', 0))[1]} | {DATASETS_3D.get(seq_name, ('', 0))[1]} |
+        | Không gian tìm kiếm | $4^{{L-1}}$ | $6^{{L-1}}$ |
+        | Độ khó | Trung bình | Cao (không gian lớn hơn) |
+
+        Lưu ý: 3D có nhiều H-H contacts hơn vì mỗi residue có **6 láng giềng** thay vì 4.
+        """)
+
     # ----- Visualisation -----
     coords = decode(gbest, mode)
     col1, col2 = st.columns([3, 2])

@@ -63,6 +63,58 @@ if st.button("🚀 Chạy PSO-PID", type="primary"):
         ("⏱️ Runtime", f"{rt:.2f}s", None),
     ])
 
+    with st.expander("📖 Giải thích kết quả", expanded=False):
+        st.markdown(f"""
+        ### 🎯 Các tham số PID đã tinh chỉnh
+
+        - **Kp = `{Kp:.3f}`** *(Proportional gain)*
+          Tăng Kp → phản hồi nhanh hơn nhưng dễ overshoot và dao động.
+
+        - **Ki = `{Ki:.3f}`** *(Integral gain)*
+          Tăng Ki → khử sai số tĩnh (steady-state error) tốt hơn nhưng có thể dao động lâu hơn.
+
+        - **Kd = `{Kd:.3f}`** *(Derivative gain)*
+          Tăng Kd → giảm overshoot, làm hệ thống mượt hơn nhưng nhạy với nhiễu.
+
+        ### 📊 Các chỉ số chất lượng đáp ứng
+
+        - **{metric} = `{m[metric]:.4f}`** — Tích phân sai số.
+          - **ITAE** (Integral Time Absolute Error): $\\int t|e(t)|dt$ — phạt mạnh sai số trễ
+          - **ISE** (Integral Square Error): $\\int e^2(t)dt$ — phạt mạnh sai số lớn
+          - **IAE** (Integral Absolute Error): $\\int |e(t)|dt$ — cân bằng
+
+        - **Overshoot = `{m['Overshoot%']:.2f}%`** *(càng nhỏ càng tốt)*
+          Tỉ lệ vượt mức setpoint. Lý tưởng < 10%, chấp nhận được < 25%.
+
+        - **Rise time = `{m['Rise']:.3f}s`**
+          Thời gian từ 10% → 90% setpoint. Nhỏ → phản hồi nhanh.
+
+        - **Settle time = `{m['Settle']:.3f}s`**
+          Thời gian để output ổn định trong dải ±2% setpoint.
+
+        ### 🖼️ Các hình minh hoạ
+
+        - **📈 Step response** — Đáp ứng hệ thống khi setpoint = 1.0:
+          - **Đường xanh**: output của plant với PID đã tinh chỉnh
+          - **Đường đỏ gạch**: setpoint (mục tiêu)
+          - **Đường xanh lá gạch**: baseline (Kp=10, Ki=5, Kd=1) — để so sánh
+
+        - **📉 Hội tụ {metric}** — Giá trị {metric} giảm theo vòng lặp.
+          Đường giảm nhanh ban đầu rồi plateau → PSO đã tìm được vùng tối ưu.
+
+        ### 💡 Plant đang điều khiển
+
+        $$G(s) = \\frac{{1}}{{s^3 + 6s^2 + 11s + 6}}$$
+
+        Đây là hệ bậc 3, có 3 cực thực. PSO tinh chỉnh PID để đầu ra **bám setpoint nhanh,
+        ít overshoot, ổn định lâu dài**.
+
+        ### 🎓 Đánh giá
+
+        {"🏆 **PID tinh chỉnh tốt!** Overshoot thấp + Settle time ngắn." if m['Overshoot%'] < 15 and m['Settle'] < 5
+         else "⚠️ **Có thể tối ưu hơn**: tăng số particles hoặc vòng lặp."}
+        """)
+
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("📈 Step response")

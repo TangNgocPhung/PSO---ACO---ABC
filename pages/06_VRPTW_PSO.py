@@ -149,6 +149,47 @@ if st.button("🚀 Chạy PSO-VRPTW (PSO chuẩn)", type="primary"):
         ("⏱️ Runtime", f"{rt:.2f}s", None),
     ])
 
+    with st.expander("📖 Giải thích kết quả", expanded=False):
+        st.markdown(f"""
+        ### 🎯 Các chỉ số đầu ra
+
+        - **🚚 Số xe = `{n_vehicles}`** — Số xe cần huy động để phục vụ {len(customers)-1}
+          khách thoả mãn cả capacity và time window.
+
+        - **📏 Tổng đường = `{total_dist:.2f}`** — Tổng quãng đường (Euclid)
+          của tất cả xe (depot → khách → khách → ... → depot).
+
+        - **⏰ Số khách trễ = `{n_late}`**
+          Số khách hàng mà xe đến **sau due_date** (vi phạm time window cứng).
+          {"✅ Lời giải HỢP LỆ — không khách nào bị trễ." if n_late == 0
+           else "⚠️ Tăng `penalty_coef` lên 1500-2000 hoặc tăng số particles/vòng lặp."}
+
+        - **⏱️ Runtime = `{rt:.2f}s`** — Thời gian PSO chạy `{n_iter}` vòng.
+
+        ### 🖼️ Các hình minh hoạ
+
+        - **🛣️ Các tuyến đường tối ưu** — Mỗi xe có màu riêng, xuất phát/kết thúc
+          tại **depot (vuông đỏ)**. Legend hiển thị `load = X/{cap}` cho mỗi xe.
+
+        - **📉 Hội tụ PSO** — Fitness theo vòng lặp.
+          $$fitness = total\\_dist + \\lambda \\cdot tardiness + 50 \\cdot n\\_vehicles$$
+          Đường giảm → PSO ngày càng tốt. Có thể dao động hơn ACO do swap-based.
+
+        ### ⏰ Kiểm tra time window
+
+        Mỗi khách có khung $[ready_i, due_i]$. Xe đến tại thời điểm $t$:
+        - $t < ready_i$ → **chờ** đến $ready_i$ (không phạt nhưng tốn thời gian)
+        - $ready_i \\le t \\le due_i$ → **đúng giờ** ✓
+        - $t > due_i$ → **trễ** ✗ → phạt $\\lambda_2 \\cdot (t - due_i)$
+
+        Xem chi tiết time window cho từng khách trong expander **"📋 Chi tiết tuyến"** ở dưới.
+
+        ### 💡 Mẹo
+
+        - Tăng `Gbest-guided prob` → particles học gbest nhiều hơn → hội tụ nhanh hơn nhưng dễ kẹt
+        - Tăng `Swap prob` → nhiều exploration cá nhân hơn → đa dạng hơn nhưng chậm
+        """)
+
     # ----- Trực quan hoá -----
     col1, col2 = st.columns(2)
     with col1:

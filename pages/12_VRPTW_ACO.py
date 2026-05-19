@@ -135,6 +135,69 @@ if st.button("🚀 Chạy ACO-VRPTW", type="primary"):
         ("⏱️ Runtime", f"{res['runtime']:.2f}s", f"{num_iter} vòng × {num_ants} kiến"),
     ])
 
+    with st.expander("📖 Giải thích kết quả", expanded=False):
+        st.markdown(f"""
+        ### 🎯 Các chỉ số đầu ra
+
+        - **🚚 Số xe = `{res['n_vehicles']}`**
+          Số xe huy động để phục vụ {n_customers} khách thoả mãn cả capacity và time window.
+          ACO **tự quyết định** đóng tuyến (về depot) khi không còn khách feasible.
+
+        - **📏 Tổng quãng đường = `{res['total_dist']:.2f}`**
+          Tổng độ dài Euclid của tất cả tuyến (depot → khách → ... → depot).
+
+        - **⏰ Tardiness = `{res['tardiness']:.1f}`**
+          Tổng thời gian xe đến TRỄ so với due_date khách: $\\sum_i \\max(0, t_i - l_i)$.
+          {"✅ **= 0** — Không khách nào bị trễ!" if res['tardiness'] == 0
+           else "⚠️ Cần tăng λ₂ (lateness penalty) hoặc vòng lặp."}
+
+        - **⏱️ Runtime = `{res['runtime']:.2f}s`** ({num_iter} vòng × {num_ants} kiến).
+
+        ### 🖼️ Các hình minh hoạ
+
+        - **🛣️ Hình 1: Tuyến đường tối ưu** — Mỗi xe màu riêng, xuất phát/kết thúc tại
+          **depot (vuông đỏ)**. Legend: `Xe k (X đv)` với X = total demand.
+
+        - **📉 Hình 2: Hội tụ Best/Avg**:
+          - **Xanh lá (Best)**: cost tốt nhất theo từng vòng → đường giảm dần
+          - **Cam (Avg)**: cost trung bình các kiến → biến động hơn nhưng có xu hướng giảm
+          - **Vùng giữa 2 đường** = đa dạng (diversity) — càng hẹp → các kiến càng đồng nhất
+
+        - **🔥 Hình 3: Pheromone heatmap** (log scale):
+          - Cell `(i,j)` sáng = kiến hay đi từ khách i sang khách j
+          - Cell tối = đường ít được dùng
+          - **Hàng 0 sáng** = nhiều khách bắt đầu từ depot
+
+        - **📅 Hình 4: Gantt chart**:
+          - **Xám**: cửa sổ thời gian khách $[ready, due]$
+          - **Tím**: thời gian xe đi (travel time)
+          - **Vàng**: chờ (xe đến sớm hơn ready)
+          - **Màu xe**: thời gian phục vụ (service time)
+          - **Số trắng** = ID khách hàng
+
+        ### ⏰ Kiểm tra ràng buộc
+
+        - ✅ **Capacity**: mỗi xe ≤ {cap} đơn vị
+        - ✅ **Time window**: bắt buộc $t_i \\le l_i$ (xe đến trước/đúng due_date)
+        - ✅ **Return-to-depot**: xe về depot trước thời gian đóng cửa
+
+        ### 💡 So sánh ACO vs PSO cho VRPTW
+
+        |  | **ACO (page này)** | PSO (page 06) |
+        |---|---|---|
+        | Đại diện | Pheromone trên cạnh | Hoán vị khách |
+        | Constraint check | **Tại từng bước** (kiến chỉ chọn khách feasible) | Sau khi build (penalty) |
+        | Hội tụ | Mượt, dần dần | Nhanh hơn nhưng có thể dao động |
+        | Pheromone visual | ✅ Có thể trực quan hoá | ❌ Không có khái niệm này |
+
+        ### 🎓 Đánh giá
+
+        - Cost từ `{res['history_best'][0]:.0f}` → `{res['best_cost']:.0f}`
+          (**giảm {(res['history_best'][0]-res['best_cost'])/res['history_best'][0]*100:.1f}%**).
+        - {"🏆 Đạt lời giải khả thi (không vi phạm)" if res['tardiness'] == 0 and res['cap_violations'] == 0
+           else "⚠️ Còn vi phạm — tăng penalty / vòng lặp."}
+        """)
+
     # ---------- Hình 1: Routes ----------
     st.subheader("🛣️ Hình 1: Các tuyến đường tối ưu")
     fig1, ax = plt.subplots(figsize=(10, 6.5))

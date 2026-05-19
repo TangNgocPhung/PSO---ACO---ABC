@@ -56,6 +56,46 @@ if st.button("🚀 Chạy ACO-JSSP", type="primary"):
         ("🔁 Vòng lặp", f"{n_iter}", None),
     ])
 
+    with st.expander("📖 Giải thích kết quả", expanded=False):
+        st.markdown(f"""
+        ### 🎯 Các chỉ số đầu ra
+
+        - **⏱️ Makespan = `{mk}`**
+          **Tổng thời gian hoàn thành tất cả công việc** = thời điểm kết thúc của
+          operation cuối cùng trên máy bận nhất. Đây là **mục tiêu cần tối thiểu hoá** trong JSSP.
+
+        - **🎯 Optimum đã biết = `{FT06_OPT}`** (FT06 benchmark, Fisher & Thompson 1963)
+
+        - **📊 Gap = `{gap:.1f}%`**
+          Khoảng cách so với optimum: $(mk - opt) / opt \\times 100\\%$.
+          - Gap < 5%: rất tốt
+          - Gap 5-15%: chấp nhận được
+          - Gap > 15%: cần tăng vòng lặp hoặc tinh chỉnh α, β
+
+        ### 🖼️ Các hình minh hoạ
+
+        - **📊 Gantt chart** — Lịch sản xuất chi tiết. Mỗi hàng = 1 máy (M0..M5),
+          mỗi thanh ngang = 1 operation của 1 job. Màu thanh = job ID (J0..J5).
+          Khoảng trống = máy nhàn rỗi (chờ job có sẵn).
+
+        - **📉 Đồ thị hội tụ** — Makespan theo vòng lặp.
+          Đường gạch đỏ = optimum = `{FT06_OPT}`. Nếu đường xanh chạm được đường đỏ
+          → tìm được lời giải tối ưu toàn cục.
+
+        ### 💡 Kiểm tra tính hợp lệ của lịch
+
+        - ✅ Mỗi job thực hiện đúng thứ tự operation
+        - ✅ Mỗi máy xử lý 1 operation tại 1 thời điểm
+        - ✅ Tất cả `{sum(len(j) for j in FT06)}` operations đã được lập lịch
+
+        ### 🔍 Diễn giải
+
+        Vòng đầu makespan ~`{hist[0]}` (kiến chọn ngẫu nhiên).
+        Sau `{n_iter}` vòng, makespan giảm còn `{mk}` — **giảm
+        {(hist[0]-mk)/hist[0]*100:.1f}%**. Pheromone tích luỹ trên các cặp `(vị trí, job)`
+        tốt → các vòng sau ưu tiên chọn job hợp lý hơn.
+        """)
+
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("📊 Gantt chart")

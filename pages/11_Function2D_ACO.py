@@ -72,6 +72,70 @@ if st.button("🚀 Chạy ACO", type="primary"):
         ("⏱️ Runtime", f"{rt:.2f}s", None),
     ])
 
+    with st.expander("📖 Giải thích kết quả", expanded=False):
+        err_x = abs(bx - tx)
+        err_y = abs(by - ty)
+        err_f = abs(bf - tf)
+        st.markdown(f"""
+        ### 🎯 Các chỉ số đầu ra
+
+        - **x\\* = `{bx:.6f}`** *(vs true optimum {tx})*
+          Toạ độ x của điểm cực tiểu mà ACO tìm được. Sai số: `|x* - x_true| = {err_x:.6f}`.
+
+        - **y\\* = `{by:.6f}`** *(vs true optimum {ty})*
+          Toạ độ y. Sai số: `|y* - y_true| = {err_y:.6f}`.
+
+        - **f(x\\*, y\\*) = `{bf:.8f}`** *(vs true minimum {tf})*
+          Giá trị hàm tại điểm tìm được. Sai số: `|f - f_true| = {err_f:.8f}`.
+          - $\\le 10^{{-3}}$ → tốt
+          - $\\le 10^{{-6}}$ → rất tốt
+          - = 0 → tìm chính xác global optimum
+
+        - **⏱️ Runtime = `{rt:.2f}s`** — Bao gồm cả local search step quanh mỗi cell.
+
+        ### 🖼️ Các hình minh hoạ
+
+        - **🗺️ Vị trí tìm thấy** (contour map):
+          - **Vùng tím/xanh dương** = giá trị f thấp (vùng đáy)
+          - **Vùng vàng/xanh lá** = f cao (đỉnh đồi)
+          - **⭐ đỏ** = optimum lý thuyết (`{tx}, {ty}`)
+          - **❌ cyan** = vị trí ACO tìm được (`{bx:.3f}, {by:.3f}`)
+          - Nếu 2 marker trùng nhau → ACO tìm chính xác
+
+        - **📉 Hội tụ** — f(best) theo vòng lặp.
+          Đường giảm về 0 (hoặc giá trị true_f) → ACO ngày càng gần optimum.
+
+        - **🔥 Pheromone heatmap**: phân bố pheromone cuối cùng trên lưới {grid_m}×{grid_m}.
+          - **Cell sáng** = nơi nhiều kiến tập trung
+          - **Cell tối** = bị bỏ qua
+          - **Log scale** (khuyên dùng) → thấy rõ exploration trails
+
+        ### 💡 Đặc điểm hàm **{func_name}**
+
+        {f"**Rastrigin**: $f(x,y) = 20 + (x^2 - 10\\cos 2\\pi x) + (y^2 - 10\\cos 2\\pi y)$" if func_name == "Rastrigin" else ""}
+        {f"**Ackley**: hàm đa cực trị, tâm phẳng nhưng có nhiều local minima quanh global" if func_name == "Ackley" else ""}
+        {f"**Sphere**: $f = x^2 + y^2$ — hàm lồi, chỉ có 1 cực trị tại (0,0)" if func_name == "Sphere" else ""}
+        {f"**Himmelblau**: có **4 global minima** cùng giá trị f=0 — bài toán đa nghiệm" if func_name == "Himmelblau" else ""}
+
+        - Miền: `[{lo}, {hi}]²`
+        - Optimum lý thuyết: `({tx}, {ty}) = {tf}`
+
+        ### 🔬 ACO cho tối ưu liên tục
+
+        Khác ACO cổ điển (tổ hợp), ở đây:
+        1. **Lưới hoá** miền liên tục thành ${grid_m}×{grid_m}$ ô
+        2. **Pheromone** đặt trên từng ô
+        3. Kiến chọn ô theo $\\tau^\\alpha \\cdot \\eta^\\beta$, rồi **sample uniformly trong ô**
+        4. **Local random walk** ({local_steps} bước) để tinh chỉnh trong ô
+        5. **Elitist update**: best cell được tăng pheromone gấp 3×
+
+        ### 🎓 Đánh giá
+
+        - Pheromone max = `{pher.max():.1f}`, median = `{np.median(pher):.3f}`
+          → tỉ lệ **{pher.max() / max(np.median(pher), 1e-6):.0f}×** thể hiện độ hội tụ
+        - {"🏆 ACO hội tụ rất tốt!" if err_f < 1e-3 else "⚠️ Có thể tăng vòng lặp / grid_m để cải thiện."}
+        """)
+
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("🗺️ Vị trí tìm thấy")
