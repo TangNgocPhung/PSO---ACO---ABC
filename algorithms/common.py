@@ -909,24 +909,25 @@ def generate_pdf_report(
                 # tăng chiều cao mỗi hàng
                 cell.set_height(1.0 / max(n_rows, 1))
 
-        # --- INPUT table ---
+        # --- INPUT & OUTPUT tables ---
         n_in = len(inputs)
         n_out = len(outputs)
-        # Tỷ lệ chiều cao theo số dòng (tối thiểu 0.15, tối đa 0.42)
-        height_in = max(0.15, min(0.42, 0.025 * n_in + 0.05))
-        height_out = max(0.15, min(0.42, 0.025 * n_out + 0.05))
-        # Đặt input phía trên + output phía dưới
-        gap = 0.03
-        total_height = height_in + height_out + gap + 0.04  # 0.04 cho header text
-        start_y = 0.84 - total_height + height_out + gap + 0.02
+        # Tỷ lệ chiều cao theo số dòng (tối thiểu 0.12, tối đa 0.32)
+        height_in = max(0.12, min(0.32, 0.022 * n_in + 0.04))
+        height_out = max(0.12, min(0.32, 0.022 * n_out + 0.04))
 
-        ax_in = fig.add_axes([0.1, 0.85 - height_in, 0.8, height_in])
+        # Vị trí: chừa khoảng cách rõ ràng giữa đường ngang (0.87) và bảng đầu tiên
+        INPUT_TOP = 0.80     # Bảng input bắt đầu từ y=0.80 (cách line 0.87 khoảng 0.07)
+        HEADER_RESERVE = 0.04  # Khoảng dành cho header "ĐẦU VÀO" / "KẾT QUẢ"
+        GAP_BETWEEN = 0.05   # Khoảng cách giữa bảng input và bảng output
+
+        ax_in = fig.add_axes([0.1, INPUT_TOP - height_in, 0.8, height_in])
         _render_table(ax_in, inputs,
                       "ĐẦU VÀO  —  Input parameters",
                       "#1e3a8a", "#eef2ff", "#eef2ff")
 
-        ax_out = fig.add_axes([0.1, 0.85 - height_in - gap - height_out - 0.04,
-                               0.8, height_out])
+        output_top = INPUT_TOP - height_in - GAP_BETWEEN - HEADER_RESERVE
+        ax_out = fig.add_axes([0.1, output_top - height_out, 0.8, height_out])
         _render_table(ax_out, outputs,
                       "KẾT QUẢ  —  Output metrics",
                       "#065f46", "#ecfdf5", "#ecfdf5")
@@ -951,18 +952,55 @@ def generate_pdf_report(
 
         # ===== TRANG SAU: MỖI FIGURE 1 TRANG (LƯU TRỰC TIẾP – KHÔNG EMBED PNG) =====
         for caption, src_fig in figures:
-            # Thêm caption ngay phía trên figure bằng suptitle
-            old_suptitle = src_fig._suptitle.get_text() if src_fig._suptitle else None
-            src_fig.suptitle(caption, fontsize=13, fontweight="bold",
-                             color="#1e1b4b", y=0.98, family="DejaVu Sans")
-            # bbox_inches="tight" giúp loại bỏ white space mép
+            # ---- Lưu trạng thái cũ để khôi phục sau ----
+            old_suptitle_text = ""
+            if src_fig._suptitle is not None:
+                old_suptitle_text = src_fig._suptitle.get_text()
+            old_top = src_fig.subplotpars.top
+            # Lưu title gốc của từng axes (để khôi phục cho Streamlit)
+            old_titles = []
+            for ax_obj in src_fig.axes:
+                old_titles.append((ax_obj, ax_obj.get_title()))
+
+            # ---- Lấy title đầu tiên không rỗng từ axes làm SUB-CAPTION ----
+            sub_caption = ""
+            for _, t in old_titles:
+                if t.strip():
+                    sub_caption = t
+                    break
+            # ---- Clear axes title để không chồng với caption ----
+            for ax_obj in src_fig.axes:
+                ax_obj.set_title("")
+
+            # ---- Ghép caption: "Hình X: ... — Sub-caption gốc" ----
+            full_caption = caption
+            if sub_caption and sub_caption.lower() not in caption.lower():
+                full_caption = f"{caption}\n{sub_caption}"
+
+            # ---- Đẩy axes xuống chừa chỗ cho caption (2 dòng nếu có) ----
+            top_margin = 0.85 if "\n" in full_caption else 0.90
+            try:
+                src_fig.subplots_adjust(top=top_margin)
+            except Exception:
+                pass
+
+            # ---- Set suptitle ----
+            src_fig.suptitle(full_caption, fontsize=13, fontweight="bold",
+                             color="#1e1b4b",
+                             y=0.97, family="DejaVu Sans",
+                             linespacing=1.3)
+
             pdf.savefig(src_fig, bbox_inches="tight", dpi=150,
                         facecolor="white")
-            # Khôi phục suptitle gốc (để Streamlit hiển thị lại không bị ảnh hưởng)
-            if old_suptitle:
-                src_fig.suptitle(old_suptitle)
-            else:
-                src_fig.suptitle("")
+
+            # ---- KHÔI PHỤC để Streamlit hiển thị bình thường ----
+            src_fig.suptitle(old_suptitle_text)
+            for ax_obj, title in old_titles:
+                ax_obj.set_title(title)
+            try:
+                src_fig.subplots_adjust(top=old_top)
+            except Exception:
+                pass
 
         # Metadata
         d = pdf.infodict()
