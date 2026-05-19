@@ -199,8 +199,25 @@ html, body, [class*="css"]  {
 [data-testid="stSidebar"] .stMarkdown,
 [data-testid="stSidebar"] .stMarkdown p,
 [data-testid="stSidebar"] .stMarkdown li,
-[data-testid="stSidebar"] .stMarkdown span:not(.badge):not(.pill) {
+[data-testid="stSidebar"] .stMarkdown span:not(.badge):not(.pill):not(.cstt-tip-card span) {
     color: #e0e7ff !important;
+}
+
+/* ===== TIP CARD trong sidebar – class riêng – LUÔN nền trắng + chữ tím đậm =====
+   Đặt specificity cao bằng cách qualified với sidebar selector.                  */
+[data-testid="stSidebar"] .cstt-tip-card,
+[data-testid="stSidebar"] .cstt-tip-card * {
+    background-color: transparent !important;
+    color: #1e1b4b !important;
+}
+[data-testid="stSidebar"] .cstt-tip-card {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+}
+[data-testid="stSidebar"] .cstt-tip-card b,
+[data-testid="stSidebar"] .cstt-tip-card strong {
+    color: #4c1d95 !important;
+    font-weight: 700 !important;
 }
 /* Chữ in đậm / nghiêng trong sidebar - tô vàng nhạt để nổi bật trên nền tối */
 [data-testid="stSidebar"] .stMarkdown strong,

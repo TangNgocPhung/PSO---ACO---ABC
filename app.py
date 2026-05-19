@@ -246,26 +246,25 @@ st.sidebar.markdown(
     """
 )
 st.sidebar.markdown("---")
-# Dùng custom div thay st.info để đảm bảo nền TRẮNG + chữ TỐI (luôn dễ đọc trên sidebar tím)
+# Custom div với inline !important (bulletproof: thắng cả CSS sidebar !important)
 st.sidebar.markdown(
     """
-    <div style="
-        background: #ffffff;
-        color: #1e1b4b;
+    <div class="cstt-tip-card" style="
+        background: #ffffff !important;
         padding: 0.9rem 1rem;
         border-radius: 14px;
         margin-top: 0.8rem;
         box-shadow: 0 6px 18px -8px rgba(0,0,0,0.5);
         font-size: 0.9rem;
-        line-height: 1.5;
+        line-height: 1.6;
         border-left: 4px solid #f093fb;
     ">
-        <span style="font-size:1.1rem;">💡</span>
-        <b style="color:#4c1d95;"> Mẹo:</b>
-        <span style="color:#1e1b4b;">
+        <span style="color:#1e1b4b !important; font-size:1rem;">💡</span>
+        <b style="color:#4c1d95 !important; font-weight:700;"> Mẹo:</b>
+        <span style="color:#1e1b4b !important;">
             Click vào một bài toán, sau đó điều chỉnh tham số ở sidebar và nhấn
-            <b style="color:#4c1d95;">🚀 Chạy</b>.
         </span>
+        <b style="color:#4c1d95 !important; font-weight:700;">🚀 Chạy</b><span style="color:#1e1b4b !important;">.</span>
     </div>
     """,
     unsafe_allow_html=True,
