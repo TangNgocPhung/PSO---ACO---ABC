@@ -65,6 +65,9 @@ if st.button("🚀 Chạy ACO-Portfolio", type="primary"):
         ("⏱️ Runtime", f"{rt:.2f}s", None),
     ])
 
+    # Tính idx (thứ tự giảm dần theo weight) – dùng cả trong giải thích và biểu đồ
+    idx = np.argsort(-w)
+
     with st.expander("📖 Giải thích kết quả", expanded=False):
         st.markdown(f"""
         ### 🎯 Các chỉ số đầu ra
@@ -123,7 +126,6 @@ if st.button("🚀 Chạy ACO-Portfolio", type="primary"):
     with col1:
         st.subheader("💼 Phân bổ danh mục")
         fig1, ax = plt.subplots(figsize=(7, 5))
-        idx = np.argsort(-w)
         ax.barh([STOCK_NAMES[i] for i in idx], [w[i] * 100 for i in idx],
                 color="#2a5298", edgecolor="black")
         ax.set_xlabel("Weight (%)"); ax.invert_yaxis()
