@@ -7,7 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 (cần để bật projection 3d)
 from matplotlib.patches import Patch
-from algorithms.common import page_header, back_button, plot_convergence, metric_row
+from algorithms.common import (page_header, back_button, plot_convergence, metric_row,
+                                generate_pdf_report, download_pdf_button)
 from algorithms.protein_pso import (pso_protein, DATASETS_2D, DATASETS_3D,
                                      decode, get_fitness_details)
 
@@ -113,7 +114,7 @@ if st.button(f"🚀 Chạy PSO-Protein ({mode})", type="primary"):
     with col1:
         st.subheader(f"🧬 Cấu trúc gấp cuộn {mode}")
         if mode == "2D":
-            fig, ax = plt.subplots(figsize=(7, 6))
+            fig_struct, ax = plt.subplots(figsize=(7, 6))
             xs = [c[0] for c in coords]
             ys = [c[1] for c in coords]
             # Backbone
@@ -147,10 +148,10 @@ if st.button(f"🚀 Chạy PSO-Protein ({mode})", type="primary"):
                 Patch(color="#3b82f6", label="P (phân cực)"),
                 Patch(color="#10b981", label="H-H contact"),
             ], loc="best")
-            st.pyplot(fig)
+            st.pyplot(fig_struct)
         else:  # 3D
-            fig = plt.figure(figsize=(8, 7))
-            ax = fig.add_subplot(111, projection="3d")
+            fig_struct = plt.figure(figsize=(8, 7))
+            ax = fig_struct.add_subplot(111, projection="3d")
             xs = [c[0] for c in coords]
             ys = [c[1] for c in coords]
             zs = [c[2] for c in coords]
@@ -189,8 +190,8 @@ if st.button(f"🚀 Chạy PSO-Protein ({mode})", type="primary"):
                 Patch(color="#60a5fa", label="P (phân cực)"),
                 Patch(color="#10b981", label="H-H contact"),
             ], loc="upper left", fontsize=8)
-            fig.tight_layout()
-            st.pyplot(fig)
+            fig_struct.tight_layout()
+            st.pyplot(fig_struct)
 
             # góc nhìn khác (nhìn từ trên xuống)
             with st.expander("🔄 Xem nhiều góc khác"):
@@ -237,6 +238,42 @@ if st.button(f"🚀 Chạy PSO-Protein ({mode})", type="primary"):
         dir_label = (["+x", "+y", "-x", "-y"] if mode == "2D"
                      else ["+x", "-x", "+y", "-y", "+z", "-z"])
         st.code(" → ".join(dir_label[int(d)] for d in gbest), language=None)
+
+    # ---------- 📄 NÚT TẢI PDF ----------
+    st.markdown("---")
+    st.subheader("📥 Xuất báo cáo PDF")
+    pdf_bytes = generate_pdf_report(
+        problem_title=f"Bài toán 07 – Protein Folding ({mode})",
+        problem_subtitle=f"HP Model {mode} – PSO – Chuỗi {seq_name}",
+        algorithm="PSO",
+        inputs={
+            "Chuỗi protein": seq_name,
+            "Chiều không gian": mode,
+            "Độ dài chuỗi": len(seq),
+            "Số H (kỵ nước)": h_count,
+            "Số P (phân cực)": p_count,
+            "Số particles": n_particles,
+            "Số vòng lặp tối đa": n_iter,
+            "Penalty (chồng chéo)": penalty,
+            "Early stop": early_stop,
+            "Seed": seed,
+        },
+        outputs={
+            "Số cặp H-H (energy)": contacts,
+            "Optimum đã biết": opt_contacts,
+            "Chất lượng": f"{quality:.1f}%",
+            "Penalty": pen,
+            "Thời gian chạy": f"{rt:.2f} giây",
+            "Số vòng đã chạy": len(hist_f),
+        },
+        figures=[
+            (f"Hình 1: Cấu trúc gấp cuộn {mode}", fig_struct),
+            ("Hình 2: Hội tụ năng lượng (H-H contacts)", fig3),
+        ],
+    )
+    download_pdf_button(pdf_bytes,
+                       file_name=f"BaoCao_Protein_{mode}_{seq_name}.pdf",
+                       key="pdf_protein")
         st.markdown(f"**Toạ độ các residue:**")
         coord_str = "\n".join(
             f"  {i:3d}. {seq[i]} → {tuple(coords[i])}"

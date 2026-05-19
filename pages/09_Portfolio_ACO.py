@@ -68,7 +68,7 @@ if st.button("🚀 Chạy ACO-Portfolio", type="primary"):
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("💼 Phân bổ danh mục")
-        fig, ax = plt.subplots(figsize=(7, 5))
+        fig1, ax = plt.subplots(figsize=(7, 5))
         idx = np.argsort(-w)
         ax.barh([STOCK_NAMES[i] for i in idx], [w[i] * 100 for i in idx],
                 color="#2a5298", edgecolor="black")
@@ -76,14 +76,15 @@ if st.button("🚀 Chạy ACO-Portfolio", type="primary"):
         ax.set_title("Trọng số tối ưu")
         for i, v in enumerate([w[j] * 100 for j in idx]):
             ax.text(v + 0.3, i, f"{v:.1f}%", va="center", fontsize=8)
-        st.pyplot(fig)
+        st.pyplot(fig1)
     with col2:
         st.subheader("📉 Hội tụ Sharpe")
-        st.pyplot(plot_convergence(hist, "Hội tụ ACO-Portfolio", "Sharpe Ratio"))
+        fig2 = plot_convergence(hist, "Hội tụ ACO-Portfolio", "Sharpe Ratio")
+        st.pyplot(fig2)
 
     # Correlation heatmap
     with st.expander("🔥 Ma trận tương quan"):
-        fig, ax = plt.subplots(figsize=(7, 6))
+        fig3, ax = plt.subplots(figsize=(7, 6))
         im = ax.imshow(CORRELATION, cmap="RdYlBu_r", vmin=0, vmax=1)
         ax.set_xticks(range(10)); ax.set_yticks(range(10))
         ax.set_xticklabels(STOCK_NAMES, rotation=45)
@@ -93,4 +94,37 @@ if st.button("🚀 Chạy ACO-Portfolio", type="primary"):
                 ax.text(j, i, f"{CORRELATION[i,j]:.2f}", ha="center", va="center",
                         fontsize=7)
         plt.colorbar(im, ax=ax)
-        st.pyplot(fig)
+        st.pyplot(fig3)
+
+    # ---------- 📄 NÚT TẢI PDF ----------
+    st.markdown("---")
+    st.subheader("📥 Xuất báo cáo PDF")
+    pdf_bytes = generate_pdf_report(
+        problem_title="Bài toán 09 – Portfolio Optimization",
+        problem_subtitle="Tối ưu danh mục đầu tư Markowitz – 10 cổ phiếu Việt Nam",
+        algorithm="ACO",
+        inputs={
+            "Số kiến": n_ants,
+            "Số vòng lặp": n_iter,
+            "Alpha": alpha,
+            "Beta": beta,
+            "Rho": rho,
+            "Risk-free rate": f"{RF*100:.1f}%",
+            "Seed": seed,
+        },
+        outputs={
+            "Sharpe Ratio": f"{sr:.4f}",
+            "Expected Return": f"{r*100:.2f}%",
+            "Risk (σ)": f"{risk*100:.2f}%",
+            "Thời gian chạy": f"{rt:.2f} giây",
+            **{f"Weight {STOCK_NAMES[i]}": f"{w[i]*100:.2f}%" for i in idx if w[i] > 0.001},
+        },
+        figures=[
+            ("Hình 1: Phân bổ danh mục tối ưu", fig1),
+            ("Hình 2: Đồ thị hội tụ Sharpe", fig2),
+            ("Hình 3: Ma trận tương quan", fig3),
+        ],
+    )
+    download_pdf_button(pdf_bytes,
+                       file_name=f"BaoCao_Portfolio_ACO.pdf",
+                       key="pdf_portfolio")

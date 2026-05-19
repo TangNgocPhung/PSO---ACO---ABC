@@ -5,7 +5,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from algorithms.common import page_header, back_button, plot_convergence, metric_row
+from algorithms.common import (page_header, back_button, plot_convergence, metric_row,
+                                generate_pdf_report, download_pdf_button)
 from algorithms.feature_selection_bpso import binary_pso_feature_selection
 
 st.set_page_config(page_title="10 · Feature Selection BPSO", page_icon="🔬", layout="wide")
@@ -71,10 +72,11 @@ if st.button("🚀 Chạy Binary PSO", type="primary"):
                         unsafe_allow_html=True)
     with col2:
         st.subheader("📉 Hội tụ")
-        st.pyplot(plot_convergence(res["history"], "Hội tụ BPSO", "Fitness"))
+        fig1 = plot_convergence(res["history"], "Hội tụ BPSO", "Fitness")
+        st.pyplot(fig1)
 
     st.subheader("📊 So sánh trước & sau")
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig2, axes = plt.subplots(1, 2, figsize=(12, 4))
     axes[0].bar(["Gốc (30)", f"Chọn ({res['n_features_selected']})"],
                 [res["baseline_acc"], res["selected_acc"]],
                 color=["#dbeafe", "#16a34a"], edgecolor="black")
@@ -86,4 +88,40 @@ if st.button("🚀 Chạy Binary PSO", type="primary"):
                 color=["#fef3c7", "#f97316"], edgecolor="black")
     axes[1].set_ylabel("Số đặc trưng"); axes[1].set_title("Số features")
     axes[1].grid(True, axis="y", alpha=.3)
-    st.pyplot(fig)
+    st.pyplot(fig2)
+
+    # ---------- 📄 NÚT TẢI PDF ----------
+    st.markdown("---")
+    st.subheader("📥 Xuất báo cáo PDF")
+    chosen = [res["feature_names"][i] for i in range(len(res["gbest"])) if res["gbest"][i] == 1]
+    pdf_bytes = generate_pdf_report(
+        problem_title="Bài toán 10 – Feature Selection",
+        problem_subtitle="Binary PSO chọn đặc trưng – Breast Cancer dataset (569×30)",
+        algorithm="Binary PSO",
+        inputs={
+            "Số particles": n_particles,
+            "Số vòng lặp": n_iter,
+            "w (inertia)": w,
+            "c1": c1,
+            "c2": c2,
+            "Alpha (trade-off)": alpha,
+            "Seed": seed,
+            "Dataset": "Breast Cancer (sklearn)",
+            "Total features": res["n_features_total"],
+        },
+        outputs={
+            "Số features được chọn": res["n_features_selected"],
+            "Giảm features": f"{(1-res['n_features_selected']/res['n_features_total'])*100:.1f}%",
+            "Accuracy gốc": f"{res['baseline_acc']*100:.2f}%",
+            "Accuracy với features chọn": f"{res['selected_acc']*100:.2f}%",
+            "Thời gian chạy": f"{res['runtime']:.2f} giây",
+            "Features chọn": ", ".join(chosen[:5]) + (f" ... (+{len(chosen)-5} nữa)" if len(chosen) > 5 else ""),
+        },
+        figures=[
+            ("Hình 1: Đồ thị hội tụ BPSO", fig1),
+            ("Hình 2: So sánh accuracy & số features", fig2),
+        ],
+    )
+    download_pdf_button(pdf_bytes,
+                       file_name=f"BaoCao_FeatureSelection_BPSO.pdf",
+                       key="pdf_fs")

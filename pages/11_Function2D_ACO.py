@@ -5,7 +5,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from algorithms.common import page_header, back_button, plot_convergence, metric_row
+from algorithms.common import (page_header, back_button, plot_convergence, metric_row,
+                                generate_pdf_report, download_pdf_button)
 from algorithms.func2d_aco import aco_function_opt, FUNCTIONS
 
 st.set_page_config(page_title="11 · Function 2D ACO", page_icon="📈", layout="wide")
@@ -74,17 +75,18 @@ if st.button("🚀 Chạy ACO", type="primary"):
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("🗺️ Vị trí tìm thấy")
-        fig, ax = plt.subplots(figsize=(7, 5))
+        fig1, ax = plt.subplots(figsize=(7, 5))
         cs = ax.contourf(X, Y, Z, levels=30, cmap="viridis", alpha=.85)
         plt.colorbar(cs, ax=ax)
         ax.scatter(tx, ty, c="red", s=200, marker="*", label="Optimum")
         ax.scatter(bx, by, c="cyan", s=200, marker="X", edgecolor="black",
                    label="ACO best")
         ax.legend()
-        st.pyplot(fig)
+        st.pyplot(fig1)
     with col2:
         st.subheader("📉 Hội tụ")
-        st.pyplot(plot_convergence(hist, f"Hội tụ ACO – {func_name}", "f(x,y)"))
+        fig2 = plot_convergence(hist, f"Hội tụ ACO – {func_name}", "f(x,y)")
+        st.pyplot(fig2)
 
     st.subheader("🔥 Pheromone heatmap")
     from matplotlib.colors import LogNorm, PowerNorm
@@ -124,11 +126,42 @@ if st.button("🚀 Chạy ACO", type="primary"):
                   color="#1e1b4b", fontweight="bold")
     st.pyplot(fig3)
 
-    # st.info(
-    #     f"💡 **Vì sao hình hay đen?** ACO hội tụ mạnh → ô tốt nhất tích luỹ "
-    #     f"pheromone rất cao (max ≈ **{pher.max():.1f}**), trong khi các ô "
-    #     f"khác chỉ còn rất nhỏ (median ≈ **{np.median(pher):.3f}**). "
-    #     f"Dùng thang **Log** hoặc **Power** để thấy rõ exploration trail. "
-    #     f"Nếu vẫn muốn thấy rõ vùng exploration, tăng **Rho** (bay hơi) lên ~0.3 "
-    #     f"hoặc giảm số vòng lặp."
-    # )
+    # ---------- 📄 NÚT TẢI PDF ----------
+    st.markdown("---")
+    st.subheader("📥 Xuất báo cáo PDF")
+    pdf_bytes = generate_pdf_report(
+        problem_title="Bài toán 11 – Function 2D Optimization",
+        problem_subtitle=f"Tối ưu hàm {func_name} trong miền [{lo}, {hi}]²",
+        algorithm="ACO",
+        inputs={
+            "Hàm mục tiêu": func_name,
+            "Miền": f"[{lo}, {hi}]²",
+            "Optimum lý thuyết": f"({tx}, {ty}) = {tf}",
+            "Số kiến": n_ants,
+            "Số vòng lặp": n_iter,
+            "Kích thước lưới M": grid_m,
+            "Alpha": alpha,
+            "Beta": beta,
+            "Rho": rho,
+            "Local search steps": local_steps,
+            "Seed": seed,
+        },
+        outputs={
+            "x*": f"{bx:.6f}",
+            "y*": f"{by:.6f}",
+            "f(x*, y*)": f"{bf:.8f}",
+            "Sai số": f"{abs(bf - tf):.8f}",
+            "Thời gian chạy": f"{rt:.2f} giây",
+            "Pheromone max": f"{pher.max():.2f}",
+            "Pheromone median": f"{np.median(pher):.4f}",
+        },
+        figures=[
+            ("Hình 0: Landscape hàm số", fig0),
+            ("Hình 1: Vị trí tìm thấy", fig1),
+            ("Hình 2: Đồ thị hội tụ", fig2),
+            ("Hình 3: Phân bố pheromone", fig3),
+        ],
+    )
+    download_pdf_button(pdf_bytes,
+                       file_name=f"BaoCao_Function2D_ACO_{func_name}.pdf",
+                       key="pdf_func2d")
