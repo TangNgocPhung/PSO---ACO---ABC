@@ -6,7 +6,8 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from algorithms.common import page_header, back_button, plot_convergence, metric_row
+from algorithms.common import (page_header, back_button, plot_convergence, metric_row,
+                                generate_pdf_report, download_pdf_button)
 from algorithms.vrptw_pso import (pso_vrptw, make_solomon_like, load_solomon_csv)
 
 st.set_page_config(page_title="06 · VRPTW PSO", page_icon="⏰", layout="wide")
@@ -152,7 +153,7 @@ if st.button("🚀 Chạy PSO-VRPTW (PSO chuẩn)", type="primary"):
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("🛣️ Các tuyến đường tối ưu")
-        fig, ax = plt.subplots(figsize=(8, 6.5))
+        fig1, ax = plt.subplots(figsize=(8, 6.5))
         ax.scatter(xs, ys, c="#3b82f6", s=70, zorder=3,
                    edgecolor="white", linewidth=1.5)
         ax.scatter(depot["x"], depot["y"], c="#ef4444", s=250, marker="s",
@@ -174,11 +175,12 @@ if st.button("🚀 Chạy PSO-VRPTW (PSO chuẩn)", type="primary"):
         ax.legend(loc="best", fontsize=8)
         ax.set_title(f"Lời giải tối ưu ({n_vehicles} xe)",
                      color="#1e1b4b", fontweight="bold")
-        st.pyplot(fig)
+        st.pyplot(fig1)
 
     with col2:
         st.subheader("📉 Hội tụ PSO")
-        st.pyplot(plot_convergence(hist, "Hội tụ PSO-VRPTW", "Fitness (lower = better)"))
+        fig2 = plot_convergence(hist, "Hội tụ PSO-VRPTW", "Fitness (lower = better)")
+        st.pyplot(fig2)
 
     # ----- Chi tiết tuyến + kiểm tra time window -----
     with st.expander("📋 Chi tiết tuyến + kiểm tra time window"):
@@ -210,3 +212,37 @@ if st.button("🚀 Chạy PSO-VRPTW (PSO chuẩn)", type="primary"):
                 prev_id = c["id"]
             st.dataframe(pd.DataFrame(log_rows), hide_index=True,
                          use_container_width=True)
+
+    # ---------- 📄 NÚT TẢI PDF ----------
+    st.markdown("---")
+    st.subheader("📥 Xuất báo cáo PDF")
+    pdf_bytes = generate_pdf_report(
+        problem_title="Bài toán 06 – VRPTW (PSO)",
+        problem_subtitle="Vehicle Routing Problem with Time Windows giải bằng PSO chuẩn",
+        algorithm="PSO",
+        inputs={
+            "Nguồn dữ liệu": data_src,
+            "Số khách hàng": len(customers) - 1,
+            "Capacity": cap,
+            "Số particles": n_particles,
+            "Số vòng lặp": n_iter,
+            "Penalty coef λ": penalty_coef,
+            "Gbest-guided prob": gbest_prob,
+            "Swap prob": swap_prob,
+            "Seed": seed_pso,
+        },
+        outputs={
+            "Số xe sử dụng": n_vehicles,
+            "Tổng quãng đường": f"{total_dist:.2f}",
+            "Khách bị trễ": n_late,
+            "Thời gian chạy": f"{rt:.2f} giây",
+        },
+        figures=[
+            ("Hình 0: Bản đồ depot + khách hàng (input)", fig0),
+            ("Hình 1: Các tuyến đường tối ưu", fig1),
+            ("Hình 2: Đồ thị hội tụ PSO", fig2),
+        ],
+    )
+    download_pdf_button(pdf_bytes,
+                       file_name=f"BaoCao_VRPTW_PSO_n{len(customers)-1}.pdf",
+                       key="pdf_vrptw_pso")

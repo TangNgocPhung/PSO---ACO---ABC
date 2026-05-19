@@ -5,7 +5,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from algorithms.common import page_header, back_button, plot_convergence, metric_row
+from algorithms.common import (page_header, back_button, plot_convergence, metric_row,
+                                generate_pdf_report, download_pdf_button)
 from algorithms.portfolio_aco import (aco_portfolio, STOCK_NAMES, SECTORS,
                                        EXPECTED_RETURNS, STD_DEVS, COV_MATRIX,
                                        CORRELATION, RF, portfolio_return,

@@ -5,7 +5,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from algorithms.common import page_header, back_button, plot_convergence, metric_row
+from algorithms.common import (page_header, back_button, plot_convergence, metric_row,
+                                generate_pdf_report, download_pdf_button)
 from algorithms.pid_pso import pso_pid, simulate_pid, performance_metrics
 
 st.set_page_config(page_title="08 · PID PSO", page_icon="🎛️", layout="wide")
@@ -65,7 +66,7 @@ if st.button("🚀 Chạy PSO-PID", type="primary"):
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("📈 Step response")
-        fig, ax = plt.subplots(figsize=(7, 5))
+        fig1, ax = plt.subplots(figsize=(7, 5))
         ax.plot(t, y, "b-", lw=2, label="PSO-tuned PID")
         ax.axhline(1.0, color="red", ls="--", label="Setpoint")
         # PID Ziegler-Nichols baseline (rough)
@@ -76,7 +77,43 @@ if st.button("🚀 Chạy PSO-PID", type="primary"):
             pass
         ax.set_xlabel("Thời gian (s)"); ax.set_ylabel("Output")
         ax.legend(); ax.grid(True, alpha=.3)
-        st.pyplot(fig)
+        st.pyplot(fig1)
     with col2:
         st.subheader("📉 Hội tụ")
-        st.pyplot(plot_convergence(hist, "Hội tụ PSO-PID", metric))
+        fig2 = plot_convergence(hist, "Hội tụ PSO-PID", metric)
+        st.pyplot(fig2)
+
+    # ---------- 📄 NÚT TẢI PDF ----------
+    st.markdown("---")
+    st.subheader("📥 Xuất báo cáo PDF")
+    pdf_bytes = generate_pdf_report(
+        problem_title="Bài toán 08 – PID Tuning",
+        problem_subtitle="Tinh chỉnh tham số bộ điều khiển PID bằng PSO",
+        algorithm="PSO",
+        inputs={
+            "Số particles": n_particles,
+            "Số vòng lặp": n_iter,
+            "w (inertia)": w,
+            "c1 (cognitive)": c1,
+            "c2 (social)": c2,
+            "Hàm mục tiêu": metric,
+            "Seed": seed,
+        },
+        outputs={
+            "Kp": f"{Kp:.4f}",
+            "Ki": f"{Ki:.4f}",
+            "Kd": f"{Kd:.4f}",
+            f"{metric}": f"{m[metric]:.4f}",
+            "Overshoot %": f"{m['Overshoot%']:.2f}",
+            "Rise time": f"{m['Rise']:.3f} s",
+            "Settle time": f"{m['Settle']:.3f} s",
+            "Thời gian chạy": f"{rt:.2f} giây",
+        },
+        figures=[
+            ("Hình 1: Step response", fig1),
+            ("Hình 2: Đồ thị hội tụ", fig2),
+        ],
+    )
+    download_pdf_button(pdf_bytes,
+                       file_name=f"BaoCao_PID_PSO_{metric}.pdf",
+                       key="pdf_pid")

@@ -6,7 +6,8 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
-from algorithms.common import page_header, back_button, plot_convergence, metric_row
+from algorithms.common import (page_header, back_button, plot_convergence, metric_row,
+                                generate_pdf_report, download_pdf_button)
 from algorithms.qap_aco import (aco_qap, FLOW, DISTANCE, DEPARTMENT_NAMES,
                                  SHORT, LOCATION_NAMES, COLORS, qap_cost)
 
@@ -77,7 +78,7 @@ if st.button("🚀 Chạy ACO-QAP", type="primary"):
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("🏢 Sơ đồ toà nhà")
-        fig, ax = plt.subplots(figsize=(6, 7))
+        fig1, ax = plt.subplots(figsize=(6, 7))
         for floor in range(4):
             for slot in range(2):
                 loc = floor * 2 + slot
@@ -91,11 +92,44 @@ if st.button("🚀 Chạy ACO-QAP", type="primary"):
         ax.set_xlim(-0.5, 6.3); ax.set_ylim(-0.5, 8.5)
         ax.set_aspect("equal"); ax.axis("off")
         ax.set_title("Phân bố phòng ban (4 tầng × 2 phòng)")
-        st.pyplot(fig)
+        st.pyplot(fig1)
     with col2:
         st.subheader("📉 Hội tụ")
-        st.pyplot(plot_convergence(hist, "Hội tụ QAP-ACO", "Cost"))
+        fig2 = plot_convergence(hist, "Hội tụ QAP-ACO", "Cost")
+        st.pyplot(fig2)
 
     with st.expander("📋 Chi tiết phân công"):
         for dept_idx, loc_idx in enumerate(assign):
             st.write(f"- **{DEPARTMENT_NAMES[dept_idx]}** → {LOCATION_NAMES[loc_idx]}")
+
+    # ---------- 📄 NÚT TẢI PDF ----------
+    st.markdown("---")
+    st.subheader("📥 Xuất báo cáo PDF")
+    pdf_bytes = generate_pdf_report(
+        problem_title="Bài toán 04 – QAP",
+        problem_subtitle="Quadratic Assignment Problem – 8 phòng ban × 8 vị trí",
+        algorithm="ACO",
+        inputs={
+            "Số phòng ban": 8,
+            "Số vị trí": 8,
+            "Số kiến": n_ants,
+            "Số vòng lặp": n_iter,
+            "Alpha": alpha,
+            "Beta": beta,
+            "Rho": rho,
+            "Seed": seed,
+        },
+        outputs={
+            "Tổng chi phí": f"{cost:.0f}",
+            "Thời gian chạy": f"{rt:.2f} giây",
+            **{f"{DEPARTMENT_NAMES[d]}": LOCATION_NAMES[l]
+               for d, l in enumerate(assign)},
+        },
+        figures=[
+            ("Hình 1: Sơ đồ toà nhà (4 tầng × 2 phòng)", fig1),
+            ("Hình 2: Đồ thị hội tụ", fig2),
+        ],
+    )
+    download_pdf_button(pdf_bytes,
+                       file_name=f"BaoCao_QAP_ACO.pdf",
+                       key="pdf_qap")

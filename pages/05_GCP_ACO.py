@@ -6,7 +6,8 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
-from algorithms.common import page_header, back_button, plot_convergence, metric_row
+from algorithms.common import (page_header, back_button, plot_convergence, metric_row,
+                                generate_pdf_report, download_pdf_button)
 from algorithms.gcp_aco import aco_gcp
 
 st.set_page_config(page_title="05 · GCP ACO", page_icon="🎨", layout="wide")
@@ -75,11 +76,48 @@ if st.button("🚀 Chạy ACO-GCP", type="primary"):
         st.subheader("🎨 Đồ thị đã tô màu")
         palette = plt.cm.tab10(np.linspace(0, 1, max(max_colors, 1)))
         node_colors = [palette[coloring[v]] for v in G.nodes()]
-        fig, ax = plt.subplots(figsize=(7, 6))
+        fig1, ax = plt.subplots(figsize=(7, 6))
         nx.draw(G, pos, with_labels=True, node_color=node_colors, node_size=380,
                 font_size=9, ax=ax, edge_color="gray")
         ax.set_title(f"Coloring – {n_used} màu, {conflicts} conflict")
-        st.pyplot(fig)
+        st.pyplot(fig1)
     with col2:
         st.subheader("📉 Hội tụ")
-        st.pyplot(plot_convergence(hist, "Hội tụ GCP-ACO", "Fitness"))
+        fig2 = plot_convergence(hist, "Hội tụ GCP-ACO", "Fitness")
+        st.pyplot(fig2)
+
+    # ---------- 📄 NÚT TẢI PDF ----------
+    st.markdown("---")
+    st.subheader("📥 Xuất báo cáo PDF")
+    pdf_bytes = generate_pdf_report(
+        problem_title="Bài toán 05 – GCP",
+        problem_subtitle=f"Graph Coloring Problem – {graph_choice}",
+        algorithm="ACO",
+        inputs={
+            "Đồ thị": graph_choice,
+            "|V| (số đỉnh)": G.number_of_nodes(),
+            "|E| (số cạnh)": G.number_of_edges(),
+            "Số màu tối đa": max_colors,
+            "Số kiến": n_ants,
+            "Số vòng lặp": n_iter,
+            "Alpha": alpha,
+            "Beta": beta,
+            "Rho": rho,
+            "Seed": seed,
+        },
+        outputs={
+            "Số màu sử dụng": n_used,
+            "Số xung đột": conflicts,
+            "Fitness": f"{fit:.0f}",
+            "Thời gian chạy": f"{rt:.2f} giây",
+            "Trạng thái": "Hợp lệ" if conflicts == 0 else f"Còn {conflicts} xung đột",
+        },
+        figures=[
+            ("Hình 0: Đồ thị ban đầu (input)", fig0),
+            ("Hình 1: Đồ thị đã tô màu", fig1),
+            ("Hình 2: Đồ thị hội tụ", fig2),
+        ],
+    )
+    download_pdf_button(pdf_bytes,
+                       file_name=f"BaoCao_GCP_ACO.pdf",
+                       key="pdf_gcp")
