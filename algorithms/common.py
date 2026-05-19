@@ -860,85 +860,109 @@ def generate_pdf_report(
         # ===== TRANG 1: TIÊU ĐỀ + INPUT + OUTPUT =====
         fig = plt.figure(figsize=(8.27, 11.69))  # A4 portrait
 
-        # --- Tiêu đề ---
+        # --- Tiêu đề (dùng font Sans, không Mono để render đúng tiếng Việt) ---
         fig.text(0.5, 0.95, problem_title, ha="center", va="top",
-                 fontsize=18, fontweight="bold", color="#1e1b4b")
+                 fontsize=18, fontweight="bold", color="#1e1b4b",
+                 family="DejaVu Sans")
         fig.text(0.5, 0.92, problem_subtitle, ha="center", va="top",
-                 fontsize=11, color="#475569", style="italic")
+                 fontsize=11, color="#475569", style="italic",
+                 family="DejaVu Sans")
         fig.text(0.5, 0.89, f"Thuật toán: {algorithm}",
                  ha="center", va="top", fontsize=10, color="#6366f1",
-                 fontweight="bold")
+                 fontweight="bold", family="DejaVu Sans")
 
         # --- Thanh ngang ---
         ax_line = fig.add_axes([0.1, 0.87, 0.8, 0.005])
         ax_line.axhline(0, color="#6366f1", lw=2)
         ax_line.axis("off")
 
-        # --- INPUT box ---
-        y_input = 0.83
-        fig.text(0.1, y_input, "▼  ĐẦU VÀO (Input parameters)",
-                 fontsize=12, fontweight="bold", color="#1e3a8a")
-        ax_in = fig.add_axes([0.1, 0.5, 0.8, 0.33])
-        ax_in.axis("off")
-        input_lines = []
-        for k, v in inputs.items():
-            input_lines.append(f"  • {k:.<35s} {v}")
-        ax_in.text(0, 0.97, "\n".join(input_lines), va="top", ha="left",
-                   fontsize=9.5, family="DejaVu Sans Mono", color="#1e1b4b",
-                   transform=ax_in.transAxes,
-                   bbox=dict(boxstyle="round,pad=0.6", fc="#eef2ff",
-                             ec="#6366f1", lw=1))
+        # --- Helper: render dict thành table ---
+        def _render_table(ax, data_dict, header_text, header_color,
+                          fc_header, fc_cell):
+            ax.axis("off")
+            ax.text(0, 1.02, header_text, transform=ax.transAxes,
+                    fontsize=12, fontweight="bold", color=header_color,
+                    family="DejaVu Sans", va="bottom")
+            rows = [[str(k), str(v)] for k, v in data_dict.items()]
+            if not rows:
+                return
+            table = ax.table(
+                cellText=rows,
+                colWidths=[0.55, 0.45],
+                cellLoc="left",
+                loc="upper left",
+                bbox=[0, 0, 1, 1],
+            )
+            table.auto_set_font_size(False)
+            table.set_fontsize(9)
+            n_rows = len(rows)
+            for (r, c), cell in table.get_celld().items():
+                cell.set_edgecolor("#cbd5e1")
+                cell.set_linewidth(0.5)
+                cell.set_facecolor(fc_cell if r % 2 == 0 else "#ffffff")
+                cell.set_text_props(family="DejaVu Sans", color="#1e1b4b")
+                cell.PAD = 0.05
+                if c == 0:
+                    cell.set_text_props(fontweight="500")
+                else:
+                    cell.set_text_props(fontweight="bold")
+                # tăng chiều cao mỗi hàng
+                cell.set_height(1.0 / max(n_rows, 1))
 
-        # --- OUTPUT box ---
-        fig.text(0.1, 0.46, "▲  KẾT QUẢ (Output metrics)",
-                 fontsize=12, fontweight="bold", color="#065f46")
-        ax_out = fig.add_axes([0.1, 0.13, 0.8, 0.33])
-        ax_out.axis("off")
-        output_lines = []
-        for k, v in outputs.items():
-            output_lines.append(f"  • {k:.<35s} {v}")
-        ax_out.text(0, 0.97, "\n".join(output_lines), va="top", ha="left",
-                    fontsize=9.5, family="DejaVu Sans Mono", color="#1e1b4b",
-                    transform=ax_out.transAxes,
-                    bbox=dict(boxstyle="round,pad=0.6", fc="#ecfdf5",
-                              ec="#10b981", lw=1))
+        # --- INPUT table ---
+        n_in = len(inputs)
+        n_out = len(outputs)
+        # Tỷ lệ chiều cao theo số dòng (tối thiểu 0.15, tối đa 0.42)
+        height_in = max(0.15, min(0.42, 0.025 * n_in + 0.05))
+        height_out = max(0.15, min(0.42, 0.025 * n_out + 0.05))
+        # Đặt input phía trên + output phía dưới
+        gap = 0.03
+        total_height = height_in + height_out + gap + 0.04  # 0.04 cho header text
+        start_y = 0.84 - total_height + height_out + gap + 0.02
+
+        ax_in = fig.add_axes([0.1, 0.85 - height_in, 0.8, height_in])
+        _render_table(ax_in, inputs,
+                      "ĐẦU VÀO  —  Input parameters",
+                      "#1e3a8a", "#eef2ff", "#eef2ff")
+
+        ax_out = fig.add_axes([0.1, 0.85 - height_in - gap - height_out - 0.04,
+                               0.8, height_out])
+        _render_table(ax_out, outputs,
+                      "KẾT QUẢ  —  Output metrics",
+                      "#065f46", "#ecfdf5", "#ecfdf5")
 
         # --- Note ---
         if note:
-            fig.text(0.1, 0.10, note, fontsize=9, color="#475569",
-                     style="italic", wrap=True)
+            fig.text(0.1, 0.08, note, fontsize=9, color="#475569",
+                     style="italic", wrap=True, family="DejaVu Sans")
 
         # --- Footer ---
         ts = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         fig.text(0.5, 0.04,
-                 f"CSTT Demo – GVHD PGS.TS Lê Hoàng Thái – Khoá 36 (2025–2027)",
-                 ha="center", fontsize=8, color="#94a3b8", style="italic")
+                 f"CSTT Demo  —  GVHD PGS.TS Lê Hoàng Thái  —  Khoá 36 (2025–2027)",
+                 ha="center", fontsize=8, color="#94a3b8", style="italic",
+                 family="DejaVu Sans")
         fig.text(0.5, 0.02, f"Xuất báo cáo lúc: {ts}",
-                 ha="center", fontsize=8, color="#94a3b8")
+                 ha="center", fontsize=8, color="#94a3b8",
+                 family="DejaVu Sans")
 
         pdf.savefig(fig, bbox_inches="tight")
         plt.close(fig)
 
-        # ===== TRANG SAU: MỖI FIGURE 1 TRANG =====
+        # ===== TRANG SAU: MỖI FIGURE 1 TRANG (LƯU TRỰC TIẾP – KHÔNG EMBED PNG) =====
         for caption, src_fig in figures:
-            # Tạo figure mới có caption + figure gốc
-            new_fig = plt.figure(figsize=(8.27, 11.0))
-            new_fig.text(0.5, 0.97, caption, ha="center", va="top",
-                         fontsize=13, fontweight="bold", color="#1e1b4b")
-
-            # Lấy nội dung từ src_fig và vẽ lại lên new_fig
-            # Cách đơn giản: lưu src_fig sang png buffer, chèn vào new_fig
-            img_buf = io.BytesIO()
-            src_fig.savefig(img_buf, format="png", dpi=120,
-                            bbox_inches="tight", facecolor="white")
-            img_buf.seek(0)
-            import matplotlib.image as mpimg
-            img = mpimg.imread(img_buf)
-            ax = new_fig.add_axes([0.05, 0.05, 0.9, 0.88])
-            ax.imshow(img)
-            ax.axis("off")
-            pdf.savefig(new_fig, bbox_inches="tight")
-            plt.close(new_fig)
+            # Thêm caption ngay phía trên figure bằng suptitle
+            old_suptitle = src_fig._suptitle.get_text() if src_fig._suptitle else None
+            src_fig.suptitle(caption, fontsize=13, fontweight="bold",
+                             color="#1e1b4b", y=0.98, family="DejaVu Sans")
+            # bbox_inches="tight" giúp loại bỏ white space mép
+            pdf.savefig(src_fig, bbox_inches="tight", dpi=150,
+                        facecolor="white")
+            # Khôi phục suptitle gốc (để Streamlit hiển thị lại không bị ảnh hưởng)
+            if old_suptitle:
+                src_fig.suptitle(old_suptitle)
+            else:
+                src_fig.suptitle("")
 
         # Metadata
         d = pdf.infodict()
