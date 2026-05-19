@@ -87,9 +87,48 @@ if st.button("🚀 Chạy ACO", type="primary"):
         st.pyplot(plot_convergence(hist, f"Hội tụ ACO – {func_name}", "f(x,y)"))
 
     st.subheader("🔥 Pheromone heatmap")
-    fig3, ax3 = plt.subplots(figsize=(8, 5))
-    im = ax3.imshow(pher.T, origin="lower", cmap="hot",
-                    extent=[lo, hi, lo, hi], aspect="auto")
-    plt.colorbar(im, ax=ax3, label="Pheromone")
-    ax3.set_title("Phân bố pheromone cuối")
+    from matplotlib.colors import LogNorm, PowerNorm
+    scale_choice = st.radio(
+        "Thang màu",
+        ["Log (khuyên dùng)", "Power γ=0.3", "Tuyến tính"],
+        horizontal=True,
+        help="ACO hội tụ mạnh về 1 ô → thang tuyến tính làm các ô khác "
+             "trông toàn đen. Dùng Log/Power để thấy rõ phân bố."
+    )
+
+    pher_disp = pher.T.copy() + 1e-3  # offset tránh log(0)
+    fig3, ax3 = plt.subplots(figsize=(9, 5))
+    if scale_choice.startswith("Log"):
+        norm = LogNorm(vmin=max(pher_disp.min(), 1e-3), vmax=pher_disp.max())
+    elif scale_choice.startswith("Power"):
+        norm = PowerNorm(gamma=0.3, vmin=pher_disp.min(), vmax=pher_disp.max())
+    else:
+        norm = None
+
+    im = ax3.imshow(pher_disp, origin="lower", cmap="inferno",
+                    extent=[lo, hi, lo, hi], aspect="auto", norm=norm,
+                    interpolation="bilinear")
+    cbar = plt.colorbar(im, ax=ax3, label="Pheromone (log/power scale)")
+    cbar.ax.tick_params(labelsize=8)
+    # đánh dấu vị trí best & optimum
+    ax3.scatter(tx, ty, c="cyan", s=180, marker="*",
+                edgecolor="white", linewidth=1.2,
+                label=f"Optimum ({tx},{ty})", zorder=5)
+    ax3.scatter(bx, by, c="lime", s=160, marker="X",
+                edgecolor="black", linewidth=1.2,
+                label="ACO best", zorder=5)
+    ax3.legend(loc="upper right", fontsize=9,
+               facecolor="white", framealpha=.9)
+    ax3.set_xlabel("x"); ax3.set_ylabel("y")
+    ax3.set_title(f"Phân bố pheromone cuối ({scale_choice})",
+                  color="#1e1b4b", fontweight="bold")
     st.pyplot(fig3)
+
+    st.info(
+        f"💡 **Vì sao hình hay đen?** ACO hội tụ mạnh → ô tốt nhất tích luỹ "
+        f"pheromone rất cao (max ≈ **{pher.max():.1f}**), trong khi các ô "
+        f"khác chỉ còn rất nhỏ (median ≈ **{np.median(pher):.3f}**). "
+        f"Dùng thang **Log** hoặc **Power** để thấy rõ exploration trail. "
+        f"Nếu vẫn muốn thấy rõ vùng exploration, tăng **Rho** (bay hơi) lên ~0.3 "
+        f"hoặc giảm số vòng lặp."
+    )
