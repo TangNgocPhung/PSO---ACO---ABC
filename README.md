@@ -10,7 +10,7 @@ GVHD **PGS.TS Lê Hoàng Thái**, Khoá 36 (2025–2027).
 | # | Bài toán | Thuật toán | File trang |
 |---|----------|-----------|-----------|
 | 01 | TSP – Traveling Salesman | ACO | `pages/01_TSP_ACO.py` |
-| 02 | CVRP – Vehicle Routing | ACO | `pages/02_VRP_ACO.py` |
+| 02 | CVRP – Capacitated Vehicle Routing | ACO | `pages/02_CVRP_ACO.py` |
 | 03 | JSSP – Job Shop Scheduling (FT06) | ACO | `pages/03_JSSP_ACO.py` |
 | 04 | QAP – Quadratic Assignment | ACO | `pages/04_QAP_ACO.py` |
 | 05 | GCP – Graph Coloring | ACO | `pages/05_GCP_ACO.py` |

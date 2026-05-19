@@ -190,7 +190,7 @@ st.markdown(
 
 problems = [
     ("01 · TSP",               "🗺️", "ACO", "Người du lịch (Traveling Salesman Problem)",      "pages/01_TSP_ACO.py"),
-    ("02 · VRP",               "🚚", "ACO", "Định tuyến phương tiện có sức chứa (CVRP)",       "pages/02_VRP_ACO.py"),
+    ("02 · CVRP",              "🚚", "ACO", "Định tuyến phương tiện có sức chứa (Capacitated VRP)", "pages/02_CVRP_ACO.py"),
     ("03 · JSSP",              "⚙️", "ACO", "Lập lịch công việc phân xưởng (FT06 benchmark)",  "pages/03_JSSP_ACO.py"),
     ("04 · QAP",               "🏢", "ACO", "Phân công Bậc hai – bố trí 8 phòng × 8 vị trí",    "pages/04_QAP_ACO.py"),
     ("05 · GCP",               "🎨", "ACO", "Tô màu đồ thị – Karate Club / Petersen",           "pages/05_GCP_ACO.py"),
