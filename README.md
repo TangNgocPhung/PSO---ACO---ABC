@@ -1,6 +1,6 @@
 # 🐝 CSTT – Hệ thống demo Swarm Intelligence
 
-Giao diện web (Streamlit) minh hoạ **11 bài toán** trong báo cáo
+Giao diện web (Streamlit) minh hoạ **12 bài toán** trong báo cáo
 *"Thuật ngữ và các toán tử của GA – Tổng quan về thuật toán Tối ưu Bầy đàn (PSO)
 và thuật toán Tối ưu Đàn kiến (ACO)"* – Học phần **Các hệ cơ sở tri thức**,
 GVHD **PGS.TS Lê Hoàng Thái**, Khoá 36 (2025–2027).
@@ -20,6 +20,7 @@ GVHD **PGS.TS Lê Hoàng Thái**, Khoá 36 (2025–2027).
 | 09 | Portfolio Optimization (Markowitz) | ACO | `pages/09_Portfolio_ACO.py` |
 | 10 | Feature Selection (Breast Cancer) | Binary PSO | `pages/10_FeatureSelection_BPSO.py` |
 | 11 | Function 2D (Rastrigin/Ackley/...) | ACO | `pages/11_Function2D_ACO.py` |
+| 12 | **VRPTW – ACO** (so sánh với page 06 PSO) | ACO | `pages/12_VRPTW_ACO.py` |
 
 ## 🚀 Cách chạy
 
@@ -99,5 +100,5 @@ trong thư mục `../CSTT_ThayThai/` (do nhóm thực hiện):
 - Tăng Ngọc Phụng – KHMT836027
 - Hoàng Châu Ngọc Phương – KHMT836028
 - Võ Phú Vinh – KHMT836036
-
+GVHD: PSG.TS Lê Hoàng Thái
 📍 TP. Hồ Chí Minh – 20/05/2026

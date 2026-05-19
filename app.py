@@ -112,7 +112,7 @@ st.markdown(
     """
     <div class="home-hero">
         <h1>🐝  CÁC HỆ CƠ SỞ TRI THỨC</h1>
-        <h3>Demo PSO – ACO – ABC trên 11 bài toán tối ưu kinh điển</h3>
+        <h3>Demo PSO – ACO – ABC trên 12 bài toán tối ưu kinh điển</h3>
         <div>
             <span class="pill">📚 PGS.TS Lê Hoàng Thái</span>
             <span class="pill">🎓 Khoá 36 (2025–2027)</span>
@@ -181,7 +181,7 @@ with c3:
 st.markdown(
     """
     <div class="section-heading">
-        <h2>🎯 11 Bài toán minh hoạ</h2>
+        <h2>🎯 12 Bài toán minh hoạ</h2>
         <p>Click vào nút <b>"Mở demo"</b> trên mỗi card để chạy thực nghiệm</p>
     </div>
     """,
@@ -200,6 +200,7 @@ problems = [
     ("09 · Portfolio",         "💹", "ACO", "Tối ưu danh mục đầu tư (Markowitz)",              "pages/09_Portfolio_ACO.py"),
     ("10 · Feature Selection", "🔬", "PSO", "Binary PSO chọn đặc trưng (Breast Cancer)",        "pages/10_FeatureSelection_BPSO.py"),
     ("11 · Function 2D",       "📈", "ACO", "Tối ưu hàm 2D (Rastrigin / Ackley / …)",          "pages/11_Function2D_ACO.py"),
+    ("12 · VRPTW (ACO)",       "🐜", "ACO", "VRPTW giải bằng ACO – so sánh với page 06 (PSO)", "pages/12_VRPTW_ACO.py"),
 ]
 
 # Render thành lưới 3 cột
