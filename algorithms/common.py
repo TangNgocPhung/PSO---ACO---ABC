@@ -823,3 +823,142 @@ def section_title(text: str, icon: str = "📊"):
         """,
         unsafe_allow_html=True,
     )
+
+
+# ============================================================================
+#  PDF REPORT GENERATOR
+# ============================================================================
+def generate_pdf_report(
+    problem_title: str,
+    problem_subtitle: str,
+    algorithm: str,
+    inputs: dict,
+    outputs: dict,
+    figures: list,
+    note: str = "",
+):
+    """Sinh PDF báo cáo: tiêu đề + input + output + tất cả figures.
+
+    Args:
+        problem_title:   Vd "Bài toán 12 – VRPTW"
+        problem_subtitle: Vd "Vehicle Routing Problem with Time Windows"
+        algorithm:       "PSO" hoặc "ACO"
+        inputs:          dict các tham số đầu vào
+        outputs:         dict các chỉ số kết quả
+        figures:         list[(caption, matplotlib.figure.Figure)]
+        note:            Ghi chú thêm (tuỳ chọn)
+
+    Returns:
+        bytes của file PDF
+    """
+    import io
+    from datetime import datetime
+    from matplotlib.backends.backend_pdf import PdfPages
+
+    buf = io.BytesIO()
+    with PdfPages(buf) as pdf:
+        # ===== TRANG 1: TIÊU ĐỀ + INPUT + OUTPUT =====
+        fig = plt.figure(figsize=(8.27, 11.69))  # A4 portrait
+
+        # --- Tiêu đề ---
+        fig.text(0.5, 0.95, problem_title, ha="center", va="top",
+                 fontsize=18, fontweight="bold", color="#1e1b4b")
+        fig.text(0.5, 0.92, problem_subtitle, ha="center", va="top",
+                 fontsize=11, color="#475569", style="italic")
+        fig.text(0.5, 0.89, f"Thuật toán: {algorithm}",
+                 ha="center", va="top", fontsize=10, color="#6366f1",
+                 fontweight="bold")
+
+        # --- Thanh ngang ---
+        ax_line = fig.add_axes([0.1, 0.87, 0.8, 0.005])
+        ax_line.axhline(0, color="#6366f1", lw=2)
+        ax_line.axis("off")
+
+        # --- INPUT box ---
+        y_input = 0.83
+        fig.text(0.1, y_input, "📥 ĐẦU VÀO (Input parameters)",
+                 fontsize=12, fontweight="bold", color="#1e3a8a")
+        ax_in = fig.add_axes([0.1, 0.5, 0.8, 0.33])
+        ax_in.axis("off")
+        input_lines = []
+        for k, v in inputs.items():
+            input_lines.append(f"  • {k:.<35s} {v}")
+        ax_in.text(0, 0.97, "\n".join(input_lines), va="top", ha="left",
+                   fontsize=9.5, family="DejaVu Sans Mono", color="#1e1b4b",
+                   transform=ax_in.transAxes,
+                   bbox=dict(boxstyle="round,pad=0.6", fc="#eef2ff",
+                             ec="#6366f1", lw=1))
+
+        # --- OUTPUT box ---
+        fig.text(0.1, 0.46, "📤 KẾT QUẢ (Output metrics)",
+                 fontsize=12, fontweight="bold", color="#065f46")
+        ax_out = fig.add_axes([0.1, 0.13, 0.8, 0.33])
+        ax_out.axis("off")
+        output_lines = []
+        for k, v in outputs.items():
+            output_lines.append(f"  • {k:.<35s} {v}")
+        ax_out.text(0, 0.97, "\n".join(output_lines), va="top", ha="left",
+                    fontsize=9.5, family="DejaVu Sans Mono", color="#1e1b4b",
+                    transform=ax_out.transAxes,
+                    bbox=dict(boxstyle="round,pad=0.6", fc="#ecfdf5",
+                              ec="#10b981", lw=1))
+
+        # --- Note ---
+        if note:
+            fig.text(0.1, 0.10, note, fontsize=9, color="#475569",
+                     style="italic", wrap=True)
+
+        # --- Footer ---
+        ts = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        fig.text(0.5, 0.04,
+                 f"CSTT Demo – GVHD PGS.TS Lê Hoàng Thái – Khoá 36 (2025–2027)",
+                 ha="center", fontsize=8, color="#94a3b8", style="italic")
+        fig.text(0.5, 0.02, f"Xuất báo cáo lúc: {ts}",
+                 ha="center", fontsize=8, color="#94a3b8")
+
+        pdf.savefig(fig, bbox_inches="tight")
+        plt.close(fig)
+
+        # ===== TRANG SAU: MỖI FIGURE 1 TRANG =====
+        for caption, src_fig in figures:
+            # Tạo figure mới có caption + figure gốc
+            new_fig = plt.figure(figsize=(8.27, 11.0))
+            new_fig.text(0.5, 0.97, caption, ha="center", va="top",
+                         fontsize=13, fontweight="bold", color="#1e1b4b")
+
+            # Lấy nội dung từ src_fig và vẽ lại lên new_fig
+            # Cách đơn giản: lưu src_fig sang png buffer, chèn vào new_fig
+            img_buf = io.BytesIO()
+            src_fig.savefig(img_buf, format="png", dpi=120,
+                            bbox_inches="tight", facecolor="white")
+            img_buf.seek(0)
+            import matplotlib.image as mpimg
+            img = mpimg.imread(img_buf)
+            ax = new_fig.add_axes([0.05, 0.05, 0.9, 0.88])
+            ax.imshow(img)
+            ax.axis("off")
+            pdf.savefig(new_fig, bbox_inches="tight")
+            plt.close(new_fig)
+
+        # Metadata
+        d = pdf.infodict()
+        d["Title"] = problem_title
+        d["Author"] = "Nhóm KHMT Khoá 36 – ĐH Sư phạm TP.HCM"
+        d["Subject"] = "Báo cáo CSTT – Swarm Intelligence Demo"
+        d["Creator"] = "Streamlit CSTT Demo"
+
+    buf.seek(0)
+    return buf.getvalue()
+
+
+def download_pdf_button(pdf_bytes: bytes, file_name: str, key: str = "pdf_dl"):
+    """Hiển thị nút tải PDF với style đồng bộ."""
+    st.download_button(
+        label="📄  Tải báo cáo PDF",
+        data=pdf_bytes,
+        file_name=file_name,
+        mime="application/pdf",
+        key=key,
+        use_container_width=False,
+        type="primary",
+    )

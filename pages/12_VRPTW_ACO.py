@@ -6,7 +6,8 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
-from algorithms.common import page_header, back_button, plot_convergence, metric_row
+from algorithms.common import (page_header, back_button, plot_convergence, metric_row,
+                                generate_pdf_report, download_pdf_button)
 from algorithms.vrptw_aco import (aco_vrptw, generate_solomon_like,
                                     distance_matrix, evaluate_routes)
 
@@ -90,7 +91,12 @@ sc = ax0.scatter(xs, ys, c=window_widths, cmap="RdYlGn", s=120,
 ax0.scatter(depot["x"], depot["y"], c="black", s=300, marker="s",
             label="Depot", zorder=4)
 for c in customers[1:]:
-    ax0.annotate(f"  {c['id']}", (c["x"], c["y"]), fontsize=8)
+    ax0.annotate(f"{c['id']}", (c["x"], c["y"]),
+                 xytext=(7, 5), textcoords="offset points",
+                 fontsize=8, fontweight="700", color="#1e1b4b",
+                 bbox=dict(boxstyle="round,pad=0.2", fc="white",
+                           ec="#94a3b8", lw=0.5, alpha=0.9),
+                 zorder=5)
 plt.colorbar(sc, ax=ax0, label="Độ rộng time window (lớn = dễ phục vụ)")
 ax0.legend(); ax0.set_xlabel("X"); ax0.set_ylabel("Y")
 ax0.set_title("Bản đồ depot + khách hàng (màu theo độ rộng time window)",
@@ -131,13 +137,18 @@ if st.button("🚀 Chạy ACO-VRPTW", type="primary"):
 
     # ---------- Hình 1: Routes ----------
     st.subheader("🛣️ Hình 1: Các tuyến đường tối ưu")
-    fig, ax = plt.subplots(figsize=(10, 6.5))
+    fig1, ax = plt.subplots(figsize=(10, 6.5))
     ax.scatter(xs, ys, c="#3b82f6", s=120, edgecolor="white",
                linewidth=1.5, zorder=3)
     ax.scatter(depot["x"], depot["y"], c="#ef4444", s=300, marker="s",
                edgecolor="white", linewidth=2, zorder=4, label="Depot")
     for c in customers[1:]:
-        ax.annotate(f"  {c['id']}", (c["x"], c["y"]), fontsize=8)
+        ax.annotate(f"{c['id']}", (c["x"], c["y"]),
+                    xytext=(7, 5), textcoords="offset points",
+                    fontsize=8, fontweight="700", color="#1e1b4b",
+                    bbox=dict(boxstyle="round,pad=0.2", fc="white",
+                              ec="#94a3b8", lw=0.5, alpha=0.9),
+                    zorder=5)
     colors = plt.cm.tab10(np.linspace(0, 1, max(len(res["best_routes"]), 1)))
     for k, r in enumerate(res["best_routes"]):
         load = sum(customers[cid]["demand"] for cid in r)
@@ -150,13 +161,13 @@ if st.button("🚀 Chạy ACO-VRPTW", type="primary"):
     ax.set_title(f"ACO-VRPTW: {res['n_vehicles']} xe, "
                  f"tổng đường = {res['total_dist']:.1f}",
                  color="#1e1b4b", fontweight="bold")
-    st.pyplot(fig)
+    st.pyplot(fig1)
 
     # ---------- Hình 2: Hội tụ ----------
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("📉 Hình 2: Hội tụ Best/Avg")
-        fig, ax = plt.subplots(figsize=(8, 5))
+        fig2, ax = plt.subplots(figsize=(8, 5))
         its = range(1, len(res["history_best"]) + 1)
         ax.plot(its, res["history_best"], color="#10b981", lw=2.5,
                 marker="o", markersize=4, label="Best")
@@ -168,12 +179,12 @@ if st.button("🚀 Chạy ACO-VRPTW", type="primary"):
         ax.set_title("Hội tụ của ACO-VRPTW",
                      color="#1e1b4b", fontweight="bold")
         ax.legend()
-        st.pyplot(fig)
+        st.pyplot(fig2)
 
     # ---------- Hình 3: Pheromone heatmap ----------
     with col2:
         st.subheader("🔥 Hình 3: Pheromone heatmap")
-        fig, ax = plt.subplots(figsize=(8, 6))
+        fig3, ax = plt.subplots(figsize=(8, 6))
         pher_disp = res["pheromone"] + 1e-3
         im = ax.imshow(pher_disp, cmap="inferno",
                        norm=LogNorm(vmin=pher_disp.min(), vmax=pher_disp.max()),
@@ -182,12 +193,12 @@ if st.button("🚀 Chạy ACO-VRPTW", type="primary"):
         ax.set_xlabel("Khách đến (j)"); ax.set_ylabel("Khách đi (i)")
         ax.set_title("Ma trận pheromone cuối cùng",
                      color="#1e1b4b", fontweight="bold")
-        st.pyplot(fig)
+        st.pyplot(fig3)
 
     # ---------- Hình 4: Gantt chart ----------
     st.subheader("📅 Hình 4: Gantt chart lịch trình các xe")
     D = res["distance_matrix"]
-    fig, ax = plt.subplots(figsize=(14, 1.5 + 0.8 * len(res["best_routes"])))
+    fig4, ax = plt.subplots(figsize=(14, 1.5 + 0.8 * len(res["best_routes"])))
     for k, r in enumerate(res["best_routes"]):
         prev = 0
         t = 0.0
@@ -220,7 +231,58 @@ if st.button("🚀 Chạy ACO-VRPTW", type="primary"):
     ax.set_title("Gantt chart (xám = window | tím = travel | "
                  "vàng = wait | màu = service)",
                  color="#1e1b4b", fontweight="bold")
-    st.pyplot(fig)
+    st.pyplot(fig4)
+
+    # ---------- 📄 NÚT TẢI PDF BÁO CÁO ----------
+    st.markdown("---")
+    st.subheader("📥 Xuất báo cáo PDF")
+    st.markdown(
+        "Tải file PDF gồm **đầy đủ tham số đầu vào, kết quả và 5 hình minh hoạ** "
+        "để đưa vào báo cáo / lưu trữ."
+    )
+    inputs_dict = {
+        "Số khách hàng": n_customers,
+        "Capacity / xe": cap,
+        "Seed dữ liệu": data_seed,
+        "Số kiến (num_ants)": num_ants,
+        "Số vòng lặp (num_iter)": num_iter,
+        "α (pheromone)": alpha,
+        "β (heuristic)": beta,
+        "ρ (evaporation)": rho,
+        "Q (deposit)": Q,
+        "Elitist": "Bật" if elitist else "Tắt",
+        "λ₁ vehicle penalty": lambda_veh,
+        "λ₂ lateness penalty": lambda_late,
+        "Seed ACO": aco_seed,
+    }
+    outputs_dict = {
+        "Số xe sử dụng": res["n_vehicles"],
+        "Tổng quãng đường": f"{res['total_dist']:.2f}",
+        "Tổng tardiness": f"{res['tardiness']:.2f}",
+        "Vi phạm capacity": res["cap_violations"],
+        "Best fitness (cost)": f"{res['best_cost']:.2f}",
+        "Thời gian chạy": f"{res['runtime']:.2f} giây",
+    }
+    figures_list = [
+        ("Hình 0: Bản đồ depot + khách hàng (input)", fig0),
+        ("Hình 1: Các tuyến đường tối ưu", fig1),
+        ("Hình 2: Đồ thị hội tụ Best/Avg", fig2),
+        ("Hình 3: Heatmap pheromone (log scale)", fig3),
+        ("Hình 4: Gantt chart lịch trình các xe", fig4),
+    ]
+    pdf_bytes = generate_pdf_report(
+        problem_title="Bài toán 12 – VRPTW (ACO)",
+        problem_subtitle="Vehicle Routing Problem with Time Windows giải bằng Ant Colony Optimization",
+        algorithm="ACO",
+        inputs=inputs_dict,
+        outputs=outputs_dict,
+        figures=figures_list,
+        note=("Mẫu báo cáo tự sinh từ giao diện CSTT Demo. "
+              "Xám = time window, tím = travel, vàng = wait, màu = service."),
+    )
+    download_pdf_button(pdf_bytes,
+                       file_name=f"BaoCao_VRPTW_ACO_n{n_customers}_iter{num_iter}.pdf",
+                       key="pdf_vrptw_aco")
 
     # ---------- Chi tiết tuyến ----------
     with st.expander("📋 Chi tiết từng tuyến + kiểm tra time window"):

@@ -103,7 +103,12 @@ with col_map:
     ax0.scatter(depot["x"], depot["y"], c="#ef4444", s=250, marker="s",
                 label="Depot", zorder=4, edgecolor="white", linewidth=1.5)
     for c in customers[1:]:
-        ax0.text(c["x"], c["y"], f" {c['id']}", fontsize=7, color="#1e1b4b")
+        ax0.annotate(f"{c['id']}", (c["x"], c["y"]),
+                     xytext=(7, 5), textcoords="offset points",
+                     fontsize=8, fontweight="700", color="#1e1b4b",
+                     bbox=dict(boxstyle="round,pad=0.2", fc="white",
+                               ec="#94a3b8", lw=0.5, alpha=0.9),
+                     zorder=5)
     ax0.legend(loc="best", fontsize=9)
     ax0.set_title("Bản đồ depot & khách hàng", color="#1e1b4b", fontweight="bold")
     st.pyplot(fig0)
@@ -160,7 +165,12 @@ if st.button("🚀 Chạy PSO-VRPTW (PSO chuẩn)", type="primary"):
             ax.plot(rx, ry, "-o", color=colors[k], lw=1.8, markersize=5,
                     label=f"Xe {k+1} ({load}/{cap})")
         for c in customers[1:]:
-            ax.text(c["x"], c["y"], f" {c['id']}", fontsize=7, color="#1e1b4b")
+            ax.annotate(f"{c['id']}", (c["x"], c["y"]),
+                        xytext=(7, 5), textcoords="offset points",
+                        fontsize=8, fontweight="700", color="#1e1b4b",
+                        bbox=dict(boxstyle="round,pad=0.2", fc="white",
+                                  ec="#94a3b8", lw=0.5, alpha=0.9),
+                        zorder=5)
         ax.legend(loc="best", fontsize=8)
         ax.set_title(f"Lời giải tối ưu ({n_vehicles} xe)",
                      color="#1e1b4b", fontweight="bold")

@@ -43,12 +43,21 @@ rho = st.sidebar.slider("Rho (bay hơi)", 0.05, 0.95, 0.5)
 seed = st.sidebar.number_input("Random seed", 0, 9999, 42)
 
 st.write(f"**Số thành phố:** {len(coords)}")
-fig0, ax0 = plt.subplots(figsize=(7, 5))
-ax0.scatter(coords[:, 0], coords[:, 1], c="red", s=60, zorder=3)
-for i, (x, y) in enumerate(coords):
-    ax0.text(x, y, f" {i}", fontsize=8)
-ax0.set_title("Bản đồ thành phố")
+fig0, ax0 = plt.subplots(figsize=(8, 6))
+ax0.scatter(coords[:, 0], coords[:, 1], c="#ef4444", s=90, zorder=3,
+            edgecolor="white", linewidth=1.5)
+bbox_style = dict(boxstyle="round,pad=0.2", fc="white",
+                  ec="#94a3b8", lw=0.5, alpha=0.9)
+# Chỉ hiển thị nhãn cho ≤ 30 thành phố để không bị rối
+if len(coords) <= 30:
+    for i, (x, y) in enumerate(coords):
+        ax0.annotate(f"{i}", (x, y), xytext=(7, 5),
+                     textcoords="offset points",
+                     fontsize=8, fontweight="700", color="#1e1b4b",
+                     bbox=bbox_style, zorder=5)
+ax0.set_title("Bản đồ thành phố", color="#1e1b4b", fontweight="bold")
 ax0.grid(True, alpha=.3)
+ax0.margins(0.1)
 st.pyplot(fig0)
 
 if st.button("🚀 Chạy ACO-TSP", type="primary"):
@@ -74,14 +83,24 @@ if st.button("🚀 Chạy ACO-TSP", type="primary"):
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("🛣️ Chu trình tối ưu")
-        fig, ax = plt.subplots(figsize=(7, 6))
-        ax.scatter(coords[:, 0], coords[:, 1], c="red", s=60, zorder=3)
+        fig, ax = plt.subplots(figsize=(8, 6.5))
         order = path + [path[0]]
-        ax.plot(coords[order, 0], coords[order, 1], "g--", lw=1.5, alpha=.8)
-        for i, (x, y) in enumerate(coords):
-            ax.text(x, y, f" {i}", fontsize=8)
-        ax.set_title(f"Chu trình – {dist:.2f}")
+        ax.plot(coords[order, 0], coords[order, 1], "-", color="#10b981",
+                lw=2, alpha=.85, zorder=2)
+        ax.scatter(coords[:, 0], coords[:, 1], c="#ef4444", s=90, zorder=3,
+                   edgecolor="white", linewidth=1.5)
+        bbox2 = dict(boxstyle="round,pad=0.2", fc="white",
+                     ec="#94a3b8", lw=0.5, alpha=0.9)
+        if len(coords) <= 30:
+            for i, (x, y) in enumerate(coords):
+                ax.annotate(f"{i}", (x, y), xytext=(7, 5),
+                            textcoords="offset points",
+                            fontsize=8, fontweight="700", color="#1e1b4b",
+                            bbox=bbox2, zorder=5)
+        ax.set_title(f"Chu trình – {dist:.2f}",
+                     color="#1e1b4b", fontweight="bold")
         ax.grid(True, alpha=.3)
+        ax.margins(0.1)
         st.pyplot(fig)
     with col2:
         st.subheader("📉 Hội tụ")

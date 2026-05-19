@@ -33,14 +33,25 @@ seed = st.sidebar.number_input("Seed", 0, 9999, 42)
 coords, demands, cap = make_random_cvrp(n_customers, capacity, seed)
 st.write(f"**Depot:** node 0 tại ({coords[0,0]:.0f},{coords[0,1]:.0f}) – **Capacity:** {capacity}")
 
-fig0, ax0 = plt.subplots(figsize=(7, 5))
-ax0.scatter(coords[1:, 0], coords[1:, 1], c="blue", s=80, label="Khách hàng")
-ax0.scatter(coords[0, 0], coords[0, 1], c="red", s=200, marker="s", label="Depot")
+fig0, ax0 = plt.subplots(figsize=(8, 6))
+ax0.scatter(coords[1:, 0], coords[1:, 1], c="#3b82f6", s=110,
+            edgecolor="white", linewidth=1.5, label="Khách hàng", zorder=3)
+ax0.scatter(coords[0, 0], coords[0, 1], c="#ef4444", s=240, marker="s",
+            edgecolor="white", linewidth=2, label="Depot", zorder=4)
+# Annotate có offset + bbox trắng để không bị đè lên chấm
+bbox_style = dict(boxstyle="round,pad=0.25", fc="white",
+                  ec="#3b82f6", lw=0.6, alpha=0.9)
 for i in range(1, len(coords)):
-    ax0.text(coords[i, 0], coords[i, 1], f" {i}(d={demands[i]})", fontsize=7)
-ax0.legend()
+    ax0.annotate(f"{i} · d={demands[i]}",
+                 (coords[i, 0], coords[i, 1]),
+                 xytext=(9, 7), textcoords="offset points",
+                 fontsize=8, fontweight="600", color="#1e1b4b",
+                 bbox=bbox_style, zorder=5)
+ax0.legend(loc="upper right", fontsize=9)
 ax0.grid(True, alpha=.3)
-ax0.set_title("Bản đồ depot & khách hàng")
+ax0.set_title("Bản đồ depot & khách hàng",
+              color="#1e1b4b", fontweight="bold")
+ax0.margins(0.1)  # thêm padding mép để label không bị cắt
 st.pyplot(fig0)
 
 if st.button("🚀 Chạy ACO-CVRP", type="primary"):
@@ -67,19 +78,31 @@ if st.button("🚀 Chạy ACO-CVRP", type="primary"):
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("🛣️ Các tuyến đường")
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.scatter(coords[1:, 0], coords[1:, 1], c="blue", s=80)
-        ax.scatter(coords[0, 0], coords[0, 1], c="red", s=200, marker="s")
+        fig, ax = plt.subplots(figsize=(8, 6.5))
         colors = plt.cm.tab10(np.linspace(0, 1, max(len(routes), 1)))
+        # Vẽ các tuyến trước (lwer zorder để chấm đè lên)
         for k, r in enumerate(routes):
             xs = [coords[0, 0]] + [coords[c, 0] for c in r] + [coords[0, 0]]
             ys = [coords[0, 1]] + [coords[c, 1] for c in r] + [coords[0, 1]]
-            ax.plot(xs, ys, "-o", color=colors[k], lw=1.8,
-                    label=f"Xe {k+1} (load={sum(demands[c] for c in r)})")
+            ax.plot(xs, ys, "-", color=colors[k], lw=2, alpha=.85,
+                    label=f"Xe {k+1} (load={sum(demands[c] for c in r)})",
+                    zorder=2)
+        # Chấm khách hàng phía trên
+        ax.scatter(coords[1:, 0], coords[1:, 1], c="#3b82f6", s=110,
+                   edgecolor="white", linewidth=1.5, zorder=3)
+        ax.scatter(coords[0, 0], coords[0, 1], c="#ef4444", s=240, marker="s",
+                   edgecolor="white", linewidth=2, zorder=4)
+        # Label offset + bbox
+        bbox2 = dict(boxstyle="round,pad=0.2", fc="white",
+                     ec="#94a3b8", lw=0.5, alpha=0.9)
         for i in range(1, len(coords)):
-            ax.text(coords[i, 0], coords[i, 1], f" {i}", fontsize=7)
+            ax.annotate(f"{i}", (coords[i, 0], coords[i, 1]),
+                        xytext=(8, 6), textcoords="offset points",
+                        fontsize=8, fontweight="700", color="#1e1b4b",
+                        bbox=bbox2, zorder=5)
         ax.legend(loc="best", fontsize=8)
         ax.grid(True, alpha=.3)
+        ax.margins(0.1)
         st.pyplot(fig)
     with col2:
         st.subheader("📉 Hội tụ")
