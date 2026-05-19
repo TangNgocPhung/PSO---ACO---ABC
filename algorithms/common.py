@@ -246,28 +246,55 @@ html, body, [class*="css"]  {
     font-weight: 600 !important;
     font-size: .88rem !important;
 }
-[data-testid="stSidebar"] h1,
-[data-testid="stSidebar"] h2,
-[data-testid="stSidebar"] h3,
-[data-testid="stSidebar"] h4 {
-    color: white !important;
-    border-bottom: 2px solid rgba(255,255,255,.15);
-    padding-bottom: .5rem;
+/* Sidebar headings - dùng body + .stApp prefix để tăng specificity vượt mọi rule khác */
+body .stApp [data-testid="stSidebar"] h1,
+body .stApp [data-testid="stSidebar"] h2,
+body .stApp [data-testid="stSidebar"] h3,
+body .stApp [data-testid="stSidebar"] h4,
+body .stApp [data-testid="stSidebar"] h1 *,
+body .stApp [data-testid="stSidebar"] h2 *,
+body .stApp [data-testid="stSidebar"] h3 *,
+body .stApp [data-testid="stSidebar"] h4 * {
+    color: #ffffff !important;
+    border-left: none !important;
+    padding-left: 0 !important;
+}
+body .stApp [data-testid="stSidebar"] h1,
+body .stApp [data-testid="stSidebar"] h2,
+body .stApp [data-testid="stSidebar"] h3,
+body .stApp [data-testid="stSidebar"] h4 {
+    border-bottom: 2px solid rgba(255,255,255,.15) !important;
+    padding-bottom: .5rem !important;
+    margin-top: 1rem !important;
 }
 
 /* ----- Slider trong sidebar ----- */
 [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div {
     background: linear-gradient(90deg, #f093fb, #f5576c) !important;
 }
-/* Giá trị hiển thị bên cạnh thanh trượt */
+/* Giá trị min/max ở 2 đầu thanh trượt */
 [data-testid="stSidebar"] [data-testid="stTickBar"],
 [data-testid="stSidebar"] [data-testid="stTickBarMin"],
 [data-testid="stSidebar"] [data-testid="stTickBarMax"] {
-    color: #a5b4fc !important;
+    color: #c7d2fe !important;
 }
+/* Nút trượt */
 [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] [role="slider"] {
     background: #f093fb !important;
     box-shadow: 0 0 0 3px rgba(240,147,251,.3) !important;
+    color: #ffffff !important;
+}
+/* Giá trị hiện tại nổi lên trên thumb (tooltip) - chữ trắng đậm */
+[data-testid="stSidebar"] .stSlider [data-baseweb="tooltip"],
+[data-testid="stSidebar"] .stSlider [data-baseweb="tooltip"] *,
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] [data-baseweb="tooltip"],
+[data-testid="stSidebar"] .stSlider div[role="slider"] + div,
+[data-testid="stSidebar"] [data-testid="stThumbValue"] {
+    color: #ffffff !important;
+    background: rgba(30,27,75,.85) !important;
+    font-weight: 700 !important;
+    padding: 2px 8px !important;
+    border-radius: 8px !important;
 }
 
 /* ----- Select box / Multi-select trong sidebar ----- */
@@ -525,13 +552,20 @@ html, body, [class*="css"]  {
     background: transparent !important;
 }
 
-/* ------- SUBHEADER ------- */
-.stApp h2, .stApp h3 {
+/* ------- SUBHEADER (chỉ áp dụng cho MAIN BODY, KHÔNG đụng sidebar) ------- */
+.stApp [data-testid="stMain"] h2,
+.stApp [data-testid="stMain"] h3,
+.stApp section.main h2,
+.stApp section.main h3,
+.stApp .main h2,
+.stApp .main h3 {
     color: #1e1b4b !important;
     font-weight: 700 !important;
     letter-spacing: -.3px;
 }
-.stApp h3 {
+.stApp [data-testid="stMain"] h3,
+.stApp section.main h3,
+.stApp .main h3 {
     font-size: 1.15rem !important;
     border-left: 4px solid #667eea;
     padding-left: 12px;
