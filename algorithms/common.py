@@ -880,7 +880,8 @@ def generate_pdf_report(
         def _render_table(ax, data_dict, header_text, header_color,
                           fc_header, fc_cell):
             ax.axis("off")
-            ax.text(0, 1.02, header_text, transform=ax.transAxes,
+            # Header đặt cách bảng 1 đoạn (1.06 = 6% chiều cao axes ở trên)
+            ax.text(0, 1.06, header_text, transform=ax.transAxes,
                     fontsize=12, fontweight="bold", color=header_color,
                     family="DejaVu Sans", va="bottom")
             rows = [[str(k), str(v)] for k, v in data_dict.items()]
