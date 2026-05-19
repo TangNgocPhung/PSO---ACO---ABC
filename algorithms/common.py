@@ -852,8 +852,51 @@ def generate_pdf_report(
         bytes của file PDF
     """
     import io
+    import textwrap
     from datetime import datetime
     from matplotlib.backends.backend_pdf import PdfPages
+
+    # ---------- Helper: wrap value text dài ----------
+    def _wrap_value(v_str: str, max_width: int = 42) -> str:
+        """Tự xuống dòng nếu value quá dài.
+        - Nếu có "→" (chu trình): break theo dấu mũi tên.
+        - Nếu có dấu phẩy: break theo dấu phẩy.
+        - Còn lại dùng textwrap.fill().
+        """
+        s = str(v_str)
+        if len(s) <= max_width:
+            return s
+        # 1) Break theo "→"
+        if " → " in s:
+            parts = s.split(" → ")
+            lines, cur = [], ""
+            for p in parts:
+                test = cur + (" → " if cur else "") + p
+                if len(test) > max_width and cur:
+                    lines.append(cur)
+                    cur = "→ " + p
+                else:
+                    cur = test
+            if cur:
+                lines.append(cur)
+            return "\n".join(lines)
+        # 2) Break theo dấu phẩy
+        if ", " in s:
+            parts = s.split(", ")
+            lines, cur = [], ""
+            for p in parts:
+                test = cur + (", " if cur else "") + p
+                if len(test) > max_width and cur:
+                    lines.append(cur + ",")
+                    cur = p
+                else:
+                    cur = test
+            if cur:
+                lines.append(cur)
+            return "\n".join(lines)
+        # 3) Generic wrap
+        return textwrap.fill(s, width=max_width,
+                              break_long_words=True, break_on_hyphens=False)
 
     buf = io.BytesIO()
     with PdfPages(buf) as pdf:
@@ -876,7 +919,7 @@ def generate_pdf_report(
         ax_line.axhline(0, color="#6366f1", lw=2)
         ax_line.axis("off")
 
-        # --- Helper: render dict thành table ---
+        # --- Helper: render dict thành table (có wrap text dài) ---
         def _render_table(ax, data_dict, header_text, header_color,
                           fc_header, fc_cell):
             ax.axis("off")
@@ -884,38 +927,45 @@ def generate_pdf_report(
             ax.text(0, 1.06, header_text, transform=ax.transAxes,
                     fontsize=12, fontweight="bold", color=header_color,
                     family="DejaVu Sans", va="bottom")
-            rows = [[str(k), str(v)] for k, v in data_dict.items()]
+            # Wrap value để value dài tự xuống dòng
+            rows = []
+            line_counts = []
+            for k, v in data_dict.items():
+                v_wrapped = _wrap_value(v)
+                rows.append([str(k), v_wrapped])
+                line_counts.append(v_wrapped.count("\n") + 1)
             if not rows:
                 return
             table = ax.table(
                 cellText=rows,
-                colWidths=[0.55, 0.45],
+                colWidths=[0.45, 0.55],   # Cột value rộng hơn để chứa text dài
                 cellLoc="left",
                 loc="upper left",
                 bbox=[0, 0, 1, 1],
             )
             table.auto_set_font_size(False)
             table.set_fontsize(9)
-            n_rows = len(rows)
+            total_lines = sum(line_counts) or 1
             for (r, c), cell in table.get_celld().items():
                 cell.set_edgecolor("#cbd5e1")
                 cell.set_linewidth(0.5)
                 cell.set_facecolor(fc_cell if r % 2 == 0 else "#ffffff")
                 cell.set_text_props(family="DejaVu Sans", color="#1e1b4b")
-                cell.PAD = 0.05
+                cell.PAD = 0.06
                 if c == 0:
                     cell.set_text_props(fontweight="500")
                 else:
                     cell.set_text_props(fontweight="bold")
-                # tăng chiều cao mỗi hàng
-                cell.set_height(1.0 / max(n_rows, 1))
+                # Chiều cao mỗi hàng tỉ lệ với số dòng nội dung (có wrap nhiều dòng)
+                cell.set_height(line_counts[r] / total_lines)
 
         # --- INPUT & OUTPUT tables ---
-        n_in = len(inputs)
-        n_out = len(outputs)
-        # Tỷ lệ chiều cao theo số dòng (tối thiểu 0.12, tối đa 0.32)
-        height_in = max(0.12, min(0.32, 0.022 * n_in + 0.04))
-        height_out = max(0.12, min(0.32, 0.022 * n_out + 0.04))
+        # Đếm TỔNG SỐ DÒNG (sau khi wrap text dài) để tính chiều cao đúng
+        total_in_lines = sum(_wrap_value(v).count("\n") + 1 for v in inputs.values())
+        total_out_lines = sum(_wrap_value(v).count("\n") + 1 for v in outputs.values())
+        # Tỷ lệ chiều cao theo SỐ DÒNG thực tế (tối thiểu 0.12, tối đa 0.38)
+        height_in = max(0.12, min(0.38, 0.024 * total_in_lines + 0.04))
+        height_out = max(0.12, min(0.38, 0.024 * total_out_lines + 0.04))
 
         # Vị trí: chừa khoảng cách rõ ràng giữa đường ngang (0.87) và bảng đầu tiên
         INPUT_TOP = 0.80     # Bảng input bắt đầu từ y=0.80 (cách line 0.87 khoảng 0.07)
