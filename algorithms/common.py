@@ -192,6 +192,22 @@ html, body, [class*="css"]  {
     background-clip: text;
 }
 
+/* ============================================================
+   ★★★ SIDEBAR TEXT – NHẤN MẠNH: TẤT CẢ chữ trong sidebar phải SÁNG ★★★
+   Đặt SỚM trong file, dùng selector rộng để mọi element kế thừa.
+   Các element cần nền sáng (input/select/alert/...) sẽ tự override sau.
+   ============================================================ */
+body [data-testid="stSidebar"],
+body [data-testid="stSidebar"] *,
+body [data-testid="stSidebar"] p,
+body [data-testid="stSidebar"] span,
+body [data-testid="stSidebar"] div,
+body [data-testid="stSidebar"] label,
+body [data-testid="stSidebar"] li,
+body [data-testid="stSidebar"] small {
+    color: #e0e7ff !important;
+}
+
 /* ------- SIDEBAR ------- */
 [data-testid="stSidebar"] {
     background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
@@ -241,10 +257,28 @@ html, body, [class*="css"]  {
     border: 1px solid rgba(253,230,138,.3) !important;
 }
 [data-testid="stSidebar"] label,
-[data-testid="stSidebar"] label * {
-    color: #c7d2fe !important;
+[data-testid="stSidebar"] label *,
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"],
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"] *,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+    color: #ffffff !important;
     font-weight: 600 !important;
-    font-size: .88rem !important;
+    font-size: .9rem !important;
+}
+
+/* "View less" / "Show more" / pagination buttons trong sidebar – ép sáng */
+[data-testid="stSidebar"] button:not([kind="primary"]):not([data-testid="stBaseButton-headerNoPadding"]) span,
+[data-testid="stSidebar"] [aria-label="View less"],
+[data-testid="stSidebar"] [aria-label="View more"],
+[data-testid="stSidebar"] [aria-label="Show more"] {
+    color: #ffffff !important;
+}
+/* Bất kỳ button text-only trong sidebar (nút phụ) */
+[data-testid="stSidebar"] [role="button"]:not([kind="primary"]) {
+    color: #e0e7ff !important;
+}
+[data-testid="stSidebar"] [role="button"]:not([kind="primary"]) * {
+    color: #e0e7ff !important;
 }
 /* Sidebar headings - dùng body + .stApp prefix để tăng specificity vượt mọi rule khác */
 body .stApp [data-testid="stSidebar"] h1,
@@ -662,6 +696,37 @@ hr {
 @keyframes shimmer {
     0%   { background-position: -200% 0; }
     100% { background-position: 200% 0; }
+}
+
+/* ============================================================
+   ★★★ FINAL OVERRIDE – đặt CUỐI để bảo vệ các vùng nền SÁNG
+   trong sidebar khỏi bị scorched-earth làm chữ sáng.
+   Vùng nền sáng: input, select, alert, tip card, popover, dropdown.
+   ============================================================ */
+body [data-testid="stSidebar"] .cstt-tip-card,
+body [data-testid="stSidebar"] .cstt-tip-card *,
+body [data-testid="stSidebar"] [data-testid="stNumberInput"] input,
+body [data-testid="stSidebar"] [data-testid="stTextInput"] input,
+body [data-testid="stSidebar"] input[type="number"],
+body [data-testid="stSidebar"] input[type="text"],
+body [data-testid="stSidebar"] [data-baseweb="select"] > div *,
+body [data-testid="stSidebar"] [data-baseweb="select"] input,
+body [data-testid="stSidebar"] [data-testid="stAlert"] *,
+body [data-baseweb="popover"] [role="option"],
+body [data-baseweb="popover"] [role="listbox"] * {
+    color: #1e1b4b !important;
+}
+/* Bold trong tip-card và alert vẫn tím đậm */
+body [data-testid="stSidebar"] .cstt-tip-card b,
+body [data-testid="stSidebar"] .cstt-tip-card strong,
+body [data-testid="stSidebar"] [data-testid="stAlert"] b,
+body [data-testid="stSidebar"] [data-testid="stAlert"] strong {
+    color: #4c1d95 !important;
+    font-weight: 700 !important;
+}
+/* Tip card text chính – tím đậm */
+body [data-testid="stSidebar"] .cstt-tip-card span:not(b):not(strong) {
+    color: #1e1b4b !important;
 }
 </style>
 """
