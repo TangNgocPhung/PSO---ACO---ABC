@@ -100,5 +100,7 @@ trong thư mục `../CSTT_ThayThai/` (do nhóm thực hiện):
 - Tăng Ngọc Phụng – KHMT836027
 - Hoàng Châu Ngọc Phương – KHMT836028
 - Võ Phú Vinh – KHMT836036
+
 GVHD: PSG.TS Lê Hoàng Thái
+
 📍 TP. Hồ Chí Minh – 20/05/2026
